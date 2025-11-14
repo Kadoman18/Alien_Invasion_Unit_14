@@ -1,6 +1,6 @@
 /.venv
 /.vscode
 **/.DS_Store
+**/__pycache__
 Lab_12.pdf
 ansi_escape_codes.py
-/__pycache__
