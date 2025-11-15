@@ -7,7 +7,7 @@ import pygame
 import settings
 import paths
 import hud
-import ship
+from ship import Ship
 
 class AlienInvasion:
         """
@@ -55,7 +55,7 @@ class AlienInvasion:
                 self.sky_rect = self.sky_surf.get_rect()
 
                 # Create the player's ship, passing this game instance for access
-                self.ship = ship.Ship(self)
+                self.ship = Ship(self)
 
                 # Runtime flags
                 self.running = True

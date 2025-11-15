@@ -41,15 +41,13 @@ class Ship:
                 self.screen: pygame.Surface = game.screen
                 self.screen_rect: pygame.Rect = game.screen_rect
 
-                # Create ship sprite using HUD's generic sprite loader
-                self.ship_sprite = hud.make_custom_sprite(
-                        paths.Graphics.ship1,
-                        self.settings.ship_size
-                )
+                self.surf: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.ship1), self.settings.ship_size).convert_alpha()
+                self.rect: pygame.Rect = self.surf.get_rect(midbottom = (
+                        self.screen_rect.midbottom[0], self.screen_rect.midbottom[1] - (self.screen_rect.midbottom[1] // 100)
+                        ))
 
-                # Extract sprite components
-                self.surf: pygame.Surface = self.ship_sprite.surf
-                self.rect: pygame.Rect = self.ship_sprite.rect
+                # Create ship sprite.. cuz idk why not.. prally helpful for later
+                self.sprite = pygame.sprite.GroupSingle()
 
                 # Position ship centered horizontally and slightly above the bottom
                 self.rect.midbottom = (
