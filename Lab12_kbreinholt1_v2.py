@@ -5,7 +5,7 @@ Includes the core game window initialization.
 
 import pygame
 import settings
-from ship import Ship
+from ship import Ship, Laser
 
 class AlienInvasion:
         """
@@ -55,6 +55,9 @@ class AlienInvasion:
                 # Create the player's ship, passing this game instance for access
                 self.ship = Ship(self)
 
+                # Create the laser
+                self.laser = Laser(self)
+
                 # Runtime flags
                 self.running = True
 
@@ -102,6 +105,7 @@ class AlienInvasion:
 
                 # Draw player ship
                 self.ship.draw()
+                self.laser.draw()
 
                 # Update the display (swap buffers)
                 pygame.display.flip()
@@ -119,6 +123,8 @@ class AlienInvasion:
 
                         # Updates the ships current position with inputs
                         self.ship.update()
+
+                        self.laser.update()
 
                         # Draws all relevant surfaces, rects, sprites, to the screen.
                         self._update_screen()
