@@ -21,6 +21,8 @@ class Laser(pygame.sprite.Sprite):
         """
 
         def __init__(self, game: 'AlienInvasion') -> None:
+                # Initialize sprite class (I think)
+                super().__init__()
                 # Basic references to AlienInvasion class and Settings class
                 self.game = game
                 self.settings = game.settings
@@ -31,8 +33,8 @@ class Laser(pygame.sprite.Sprite):
                 self.screen_rect: pygame.Rect = game.screen_rect
 
                 # Surf and Rect for laser sprite
-                self.surf: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.laser), self.settings.laser_size).convert_alpha()
-                self.rect: pygame.Rect = self.surf.get_rect(center = (self.ship.rect.midtop))
+                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.laser), self.settings.laser_size).convert_alpha()
+                self.rect: pygame.Rect = self.image.get_rect(center = (self.ship.rect.midtop))
 
                 # Sets the lasers travel speed
                 self.speed: int = self.settings.laser_speed
@@ -57,5 +59,5 @@ class Laser(pygame.sprite.Sprite):
                 """
 
                 # Draw the ship to the screen
-                self.screen.blit(self.surf, self.rect)
+                self.screen.blit(self.image, self.rect)
 

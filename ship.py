@@ -45,8 +45,8 @@ class Ship(pygame.sprite.Sprite):
                 self.screen: pygame.Surface = game.screen
                 self.screen_rect: pygame.Rect = game.screen_rect
 
-                self.surf: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.ship1), self.settings.ship_size).convert_alpha()
-                self.rect: pygame.Rect = self.surf.get_rect(midbottom = (
+                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.ship1), self.settings.ship_size).convert_alpha()
+                self.rect: pygame.Rect = self.image.get_rect(midbottom = (
                         self.screen_rect.midbottom[0], self.screen_rect.midbottom[1] - (self.screen_rect.midbottom[1] // 100)
                         ))
 
@@ -99,4 +99,4 @@ class Ship(pygame.sprite.Sprite):
                 """
 
                 # Draw the ship to the screen
-                self.screen.blit(self.surf, self.rect)
+                self.screen.blit(self.image, self.rect)

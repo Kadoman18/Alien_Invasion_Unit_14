@@ -84,6 +84,7 @@ class AlienInvasion:
                 elif event.key == pygame.K_d:
                         self.ship.moving_right = True
                 elif event.key == pygame.K_SPACE:
+                        self.laser.draw()
                         self.ship.firing = True
                 elif event.key == pygame.K_q:
                         self.running = False
@@ -106,7 +107,6 @@ class AlienInvasion:
 
                 # Draw player ship
                 self.ship.draw()
-                self.laser.draw()
 
                 # Update the display (swap buffers)
                 pygame.display.flip()
@@ -116,6 +116,10 @@ class AlienInvasion:
                 """
                 Execute the main game loop until the window is closed.
                 """
+
+                self.ship_sprite = pygame.sprite.GroupSingle().add(Ship(self))
+
+                self.laser_sprite = pygame.sprite.Group().add(Laser(self))
 
                 while self.running:
 
