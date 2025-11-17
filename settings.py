@@ -113,7 +113,7 @@ class Settings:
                 # Sizing for the alien ship sprites
                 self.alien_size: tuple[int, int] = (
                         self.ScreenSize.x // 25,
-                        self.ScreenSize.y // 18
+                        self.ScreenSize.y // 15
                 )
 
                 # Sets enemy speed proportional to screen size, ensuring continuity across devices
