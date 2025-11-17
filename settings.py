@@ -111,13 +111,13 @@ class Settings:
                 self.laser_noise: Path = paths.Audio.laser
 
                 # Sizing for the alien ship sprites
-                self.enemy_size: tuple[int, int] = (
+                self.alien_size: tuple[int, int] = (
                         self.ScreenSize.x // 25,
                         self.ScreenSize.y // 18
                 )
 
                 # Sets enemy speed proportional to screen size, ensuring continuity across devices
-                self.enemy_speed: int  = self.ScreenSize.x // 250
+                self.alien_speed: int  = self.ScreenSize.x // 250
 
                 # Frames per second cap for the main loop
                 self.fps: int = 60

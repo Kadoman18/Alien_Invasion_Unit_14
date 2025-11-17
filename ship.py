@@ -28,9 +28,9 @@ class Ship(pygame.sprite.Sprite):
                 self.screen_rect: pygame.Rect = game.screen_rect
 
                 # Load ship image and create surface
-                self.image: pygame.Surface = pygame.image.load(paths.Graphics.ship1).convert_alpha()
+                self.image: pygame.Surface = pygame.image.load(paths.Graphics.ship).convert_alpha()
                 self.image: pygame.Surface = pygame.transform.scale(
-                        pygame.image.load(paths.Graphics.ship1),
+                        pygame.image.load(paths.Graphics.ship),
                         self.settings.ship_size
                 ).convert_alpha()
 

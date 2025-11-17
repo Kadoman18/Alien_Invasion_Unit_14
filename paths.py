@@ -25,7 +25,7 @@ class Audio:
         laser : Path
                 Path to the laser firing sound effect.
         """
-        impact: Path = BASE / "audio" / "impactSound.mp3"
+        impact: Path = BASE / "audio" / "impact.mp3"
         laser: Path = BASE / "audio" / "laser.mp3"
 
 
@@ -50,12 +50,12 @@ class Font:
         Attributes
         ----------
         bold : Path
-                Path to the bold-weight Silkscreen font.
+                Path to the bold silkscreen font.
         regular : Path
-                Path to the regular-weight Silkscreen font.
+                Path to the regular silkscreen font.
         """
-        bold: Path = BASE / "fonts" / "Silkscreen-Bold.ttf"
-        regular: Path = BASE / "fonts" / "Silkscreen-Regular.ttf"
+        bold: Path = BASE / "fonts" / "silkscreen" / "silkscreen_bold.ttf"
+        regular: Path = BASE / "fonts" / "silkscreen" / "silkscreen_regular.ttf"
 
 
 @dataclass
@@ -69,28 +69,22 @@ class Graphics:
         asteroid : Path
                 Asteroid sprite asset.
         beams : Path
-                Beam/laser graphic asset.
-        enemy : Path
-                Enemy ship sprite.
+                Beam graphics asset.
+        alien : Path
+                Alien ship sprite.
         laser : Path
                 Laser blast sprite.
-        ship1 : Path
+        ship : Path
                 Primary player ship sprite.
-        ship2 : Path
-                Alternate player ship sprite.
-        ship2nobg : Path
-                Ship sprite with background removed.
         background : Path
                 Primary game background image.
         icon : Path
                 App icon image.
         """
-        asteroid: Path = BASE / "graphics" / "Asteroid Brown.png"
+        asteroid: Path = BASE / "graphics" / "asteroid.png"
         beams: Path = BASE / "graphics" / "beams.png"
-        enemy: Path = BASE / "graphics" / "enemy_4.png"
-        laser: Path = BASE / "graphics" / "laserBlast.png"
-        ship1: Path = BASE / "graphics" / "ship.png"
-        ship2: Path = BASE / "graphics" / "ship2.png"
-        ship2nobg: Path = BASE / "graphics" / "ship2(no bg).png"
-        background: Path = BASE / "graphics" / "Starbasesnow.png"
-        icon: Path = BASE / "graphics" / "alien_invasion_icon.png"
+        alien: Path = BASE / "graphics" / "alien.png"
+        laser: Path = BASE / "graphics" / "laser.png"
+        ship: Path = BASE / "graphics" / "ship.png"
+        background: Path = BASE / "graphics" / "background.png"
+        icon: Path = BASE / "graphics" / "icon.png"

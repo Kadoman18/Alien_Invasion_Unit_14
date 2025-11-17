@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class Aliens(pygame.sprite.Sprite):
         """Houses the laser projectile surf, rect, and movement behavior."""
 
-        def __init__(self, game: 'AlienInvasion') -> None:
+        def __init__(self, game: 'AlienInvasion', x: int, y: int) -> None:
 
                 # Initialize sprite class
                 super().__init__()
@@ -32,15 +32,14 @@ class Aliens(pygame.sprite.Sprite):
                 self.screen_image: pygame.Surface = game.screen
                 self.screen_rect: pygame.Rect = game.screen_rect
 
-                # Surf and rect for laser sprite
-                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.enemy), self.settings.enemy_size).convert_alpha()
-                self.rect: pygame.Rect = self.image.get_rect(topleft = (
-                        0 + (self.settings.screen_size[0] // 100),
-                        0 + (self.settings.screen_size[0] // 100)
-                        ))
+                # Surf and rect for alien sprite
+                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.alien), self.settings.alien_size).convert_alpha()
+                self.rect: pygame.Rect = self.image.get_rect(center = (x, y))
 
-                # Set the lasers travel speed
-                self.speed: int = self.settings.enemy_speed
+                #0 + (self.settings.screen_size[0] // 75)
+
+                # Set the aliens travel speed
+                self.speed: int = self.settings.alien_speed
 
                 # Movement bools
                 self.moving_right: bool  = False
@@ -50,7 +49,7 @@ class Aliens(pygame.sprite.Sprite):
         def update(self) -> None:
                 """Updates the lasers position."""
 
-                # Lasers movement
+                # Alien movement
                 if self.moving_right:
                         self.rect.x += self.speed
                 elif self.moving_left:

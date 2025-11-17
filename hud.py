@@ -11,8 +11,8 @@ font_cache = {}
 
 # Mapping of font keys to their font file paths
 fonts = {
-        'ss_reg': 'assets/fonts/Silkscreen/Silkscreen-Regular.ttf',
-        'ss_bold': 'assets/fonts/Silkscreen/Silkscreen-Bold.ttf'
+        'ss_reg': 'assets/fonts/silkscreen/silkscreen_regular.ttf',
+        'ss_bold': 'assets/fonts/silkscreen/silkscreen_bold.ttf'
 }
 
 

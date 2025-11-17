@@ -7,7 +7,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from arsenal import Laser
-from alien_ships import Aliens
+from alien import Aliens
 
 
 class AlienInvasion:
@@ -52,8 +52,9 @@ class AlienInvasion:
                 self.laser_blast = pygame.mixer.music.load(self.settings.laser_noise)
 
                 # Alien Sprite
-                self.alien = Aliens(self)
+                self.alien = Aliens(self, 50, 50)
                 self.aliens = pygame.sprite.Group()
+                self.aliens.add(self.alien)
 
                 # Game running boolean
                 self.running: bool = True
@@ -68,23 +69,26 @@ class AlienInvasion:
                 # Get current time for fire rate limiting
                 now: int = pygame.time.get_ticks()
 
+                # Small function to fire the laser and reset the timer
+                def ship_fire(self, now):
+                        """Small function to fire and reset time"""
+
+                        laser = Laser(self)
+                        self.lasers.add(laser)
+                        pygame.mixer.music.play()
+                        self.last_shot_time = now
+
                 # Give laser the last shot time attribute
                 if not hasattr(self, "last_shot_time"):
                         self.last_shot_time = 0
 
                 # Base fire speed (spacebar)
                 if self.ship.firing and (now - self.last_shot_time >= self.settings.ship_base_fire_rate):
-                        laser = Laser(self)
-                        self.lasers.add(laser)
-                        pygame.mixer.music.play()
-                        self.last_shot_time = now
+                        ship_fire(self, now)
 
                 # Rapid fire speed (spacebar + shift)
                 elif self.ship.firing and self.ship.firing_rapid and (now - self.last_shot_time >= self.settings.ship_rapid_fire_rate):
-                        laser = Laser(self)
-                        self.lasers.add(laser)
-                        pygame.mixer.music.play()
-                        self.last_shot_time = now
+                        ship_fire(self, now)
 
 
         def _event_listener(self) -> None:
@@ -178,8 +182,6 @@ class AlienInvasion:
         def run_game(self) -> None:
                 """Main game loop"""
 
-                self.aliens.add(self.alien)
-
                 while True:
 
                         # Handle system and player events
@@ -187,6 +189,9 @@ class AlienInvasion:
 
                         # Update ship sprite group
                         self.ship_group.update()
+
+                        # Update aliens sprite group
+                        self.aliens.update()
 
                         # Fire lasers if conditions are met
                         self._fire_laser()
