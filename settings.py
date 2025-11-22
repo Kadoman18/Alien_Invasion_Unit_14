@@ -119,5 +119,9 @@ class Settings:
                 # Sets enemy speed proportional to screen size, ensuring continuity across devices
                 self.alien_speed: int  = self.ScreenSize.x // 250
 
+                # Horde Settings
+                self.horde_direction = 1
+                self.horde_advance = 20
+
                 # Frames per second cap for the main loop
                 self.fps: int = 60

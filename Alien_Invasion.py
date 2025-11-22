@@ -51,11 +51,6 @@ class AlienInvasion:
 
                 self.laser_blast = pygame.mixer.music.load(self.settings.laser_noise)
 
-                # Alien Sprite
-                self.alien = Aliens(self, 50, 50)
-                self.aliens = pygame.sprite.Group()
-                self.aliens.add(self.alien)
-
                 # Game running boolean
                 self.running: bool = True
 
@@ -172,9 +167,6 @@ class AlienInvasion:
                 # Draw lasers sprite group
                 self.lasers.draw(self.screen)
 
-                # Draw aliens sprite group
-                self.aliens.draw(self.screen)
-
                 # Update the display (swap buffers)
                 pygame.display.flip()
 
@@ -189,9 +181,6 @@ class AlienInvasion:
 
                         # Update ship sprite group
                         self.ship_group.update()
-
-                        # Update aliens sprite group
-                        self.aliens.update()
 
                         # Fire lasers if conditions are met
                         self._fire_laser()

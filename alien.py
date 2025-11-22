@@ -1,8 +1,8 @@
 """
-Laser entities for the Alien Invasion game.
+Alien entities for the Alien Invasion game.
 
 Provides sprite loading, positioning logic, and screen drawing behavior
-for the ships lasers. Integrates with the main AlienInvasion game
+for the alien ship. Integrates with the main AlienInvasion game
 instance to access window dimensions, settings, and display surfaces.
 """
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class Aliens(pygame.sprite.Sprite):
-        """Houses the laser projectile surf, rect, and movement behavior."""
+        """Houses the alien surf, rect, and movement behavior."""
 
         def __init__(self, game: 'AlienInvasion', x: int, y: int) -> None:
 
@@ -36,8 +36,6 @@ class Aliens(pygame.sprite.Sprite):
                 self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.alien), self.settings.alien_size).convert_alpha()
                 self.rect: pygame.Rect = self.image.get_rect(center = (x, y))
 
-                #0 + (self.settings.screen_size[0] // 75)
-
                 # Set the aliens travel speed
                 self.speed: int = self.settings.alien_speed
 
@@ -47,7 +45,7 @@ class Aliens(pygame.sprite.Sprite):
 
 
         def update(self) -> None:
-                """Updates the lasers position."""
+                """Updates the aliens position."""
 
                 # Alien movement
                 if self.moving_right:
