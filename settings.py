@@ -120,8 +120,12 @@ class Settings:
                 self.alien_speed: int  = self.ScreenSize.x // 250
 
                 # Horde Settings
-                self.horde_direction = 1
-                self.horde_advance = 20
+                self.horde_speed: int = 4
+                self.horde_advance: int = 50
+                self.horde_direction: int = 1
+                self.horde_padding: int = 20
+
+                self.horde_size: tuple[int, int] = (6, 14)
 
                 # Frames per second cap for the main loop
                 self.fps: int = 60

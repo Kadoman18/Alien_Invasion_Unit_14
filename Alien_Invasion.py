@@ -7,7 +7,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from arsenal import Laser
-from alien import Aliens
+from alien_horde import AlienHorde
 
 
 class AlienInvasion:
@@ -41,7 +41,7 @@ class AlienInvasion:
                 )
                 self.sky_rect: pygame.Rect = self.sky_image.get_rect()
 
-                 # Create the player's ship sprite, sprite group, and add the sprite to it.
+                # Create the player's ship sprite, sprite group, and add the sprite to it.
                 self.ship = Ship(self)
                 self.ship_group = pygame.sprite.GroupSingle()
                 self.ship_group.add(self.ship)
@@ -50,6 +50,9 @@ class AlienInvasion:
                 self.lasers = pygame.sprite.Group()
 
                 self.laser_blast = pygame.mixer.music.load(self.settings.laser_noise)
+
+                # Create the horde of aliens
+                self.horde = AlienHorde(self)
 
                 # Game running boolean
                 self.running: bool = True
@@ -64,26 +67,23 @@ class AlienInvasion:
                 # Get current time for fire rate limiting
                 now: int = pygame.time.get_ticks()
 
-                # Small function to fire the laser and reset the timer
-                def ship_fire(self, now):
-                        """Small function to fire and reset time"""
-
-                        laser = Laser(self)
-                        self.lasers.add(laser)
-                        pygame.mixer.music.play()
-                        self.last_shot_time = now
-
                 # Give laser the last shot time attribute
                 if not hasattr(self, "last_shot_time"):
                         self.last_shot_time = 0
 
                 # Base fire speed (spacebar)
                 if self.ship.firing and (now - self.last_shot_time >= self.settings.ship_base_fire_rate):
-                        ship_fire(self, now)
+                        laser = Laser(self)
+                        self.lasers.add(laser)
+                        pygame.mixer.music.play()
+                        self.last_shot_time = now
 
                 # Rapid fire speed (spacebar + shift)
                 elif self.ship.firing and self.ship.firing_rapid and (now - self.last_shot_time >= self.settings.ship_rapid_fire_rate):
-                        ship_fire(self, now)
+                        laser = Laser(self)
+                        self.lasers.add(laser)
+                        pygame.mixer.music.play()
+                        self.last_shot_time = now
 
 
         def _event_listener(self) -> None:
@@ -167,6 +167,9 @@ class AlienInvasion:
                 # Draw lasers sprite group
                 self.lasers.draw(self.screen)
 
+                # Draw alien horde
+                self.horde.horde.draw(self.screen)
+
                 # Update the display (swap buffers)
                 pygame.display.flip()
 
@@ -187,6 +190,9 @@ class AlienInvasion:
 
                         # Update lasers sprite group
                         self.lasers.update()
+
+                        # Update alien horde movement
+                        self.horde.update()
 
                         # Draws all relevant surfaces, rects, sprites, to the screen.
                         self._update_screen()

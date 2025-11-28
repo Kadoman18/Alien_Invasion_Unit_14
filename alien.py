@@ -39,17 +39,18 @@ class Aliens(pygame.sprite.Sprite):
                 # Set the aliens travel speed
                 self.speed: int = self.settings.alien_speed
 
-                # Movement bools
-                self.moving_right: bool  = False
-                self.moving_left: bool  = False
 
+        def update(self):
+                """
+                Move alien horizontally using global fleet direction.
+                """
+                self.rect.x += (self.settings.horde_speed *
+                        self.settings.horde_direction)
 
-        def update(self) -> None:
-                """Updates the aliens position."""
-
-                # Alien movement
-                if self.moving_right:
-                        self.rect.x += self.speed
-                elif self.moving_left:
-                        self.rect.x -= self.speed
-
+        def check_edges(self):
+                """
+                Return True if alien touches either edge of the screen.
+                """
+                screen_rect = self.game.screen.get_rect()
+                return self.rect.right >= screen_rect.right or \
+                       self.rect.left <= 0
