@@ -7,7 +7,6 @@ import pygame
 import paths
 from settings import Settings
 from ship import Ship
-from arsenal import Laser
 from alien_horde import AlienHorde
 from button import Button
 
@@ -48,7 +47,6 @@ class AlienInvasion:
 
                 self.pause_duration = 0
                 self.pause_start_time = None
-                self.last_shot_time = 0
 
                 # Customize game window title and icon
                 pygame.display.set_caption(self.settings.name)
@@ -79,27 +77,6 @@ class AlienInvasion:
 
                 # Game clock
                 self.clock = pygame.time.Clock()
-
-
-        def _fire_laser(self) -> None:
-                """Handles the logic for continuous laser firing and rate"""
-                if self.paused:
-                        return
-
-                now = pygame.time.get_ticks()
-                relative_now = now - self.pause_duration
-
-                # Base fire
-                if self.ship.firing and (relative_now - self.last_shot_time >= self.settings.ship_base_fire_rate):
-                        self.lasers.add(Laser(self))
-                        self.last_shot_time = relative_now
-
-                # Rapid fire
-                elif self.ship.firing and self.ship.firing_rapid and (
-                    relative_now - self.last_shot_time >= self.settings.ship_rapid_fire_rate
-                ):
-                        self.lasers.add(Laser(self))
-                        self.last_shot_time = relative_now
 
 
 
@@ -222,9 +199,6 @@ class AlienInvasion:
 
                         # Update ship sprite group
                         self.ship_group.update()
-
-                        # Fire lasers if conditions are met
-                        self._fire_laser()
 
                         # Update lasers sprite group
                         self.lasers.update()

@@ -4,6 +4,7 @@ Ship entity for the Alien Invasion game.
 
 import pygame
 import paths
+from arsenal import Laser
 from typing import TYPE_CHECKING
 
 # Forward reference to avoid circular imports at runtime
@@ -49,12 +50,37 @@ class Ship(pygame.sprite.Sprite):
                 self.moving_left: bool = False
 
                 # Firing flags
+                self.last_shot_time = 0
                 self.firing: bool = False
                 self.firing_rapid: bool = False
 
 
+        def _fire_laser(self) -> None:
+                """Handles the logic for continuous laser firing and rate"""
+                if self.game.paused:
+                        return
+
+                now = pygame.time.get_ticks()
+                relative_now = now - self.game.pause_duration
+
+                # Base fire
+                if self.game.ship.firing and (relative_now - self.last_shot_time >= self.settings.ship_base_fire_rate):
+                        self.game.lasers.add(Laser(self.game))
+                        self.last_shot_time = relative_now
+
+                # Rapid fire
+                elif self.game.ship.firing and self.game.ship.firing_rapid and (
+                    relative_now - self.last_shot_time >= self.settings.ship_rapid_fire_rate
+                ):
+                        self.game.lasers.add(Laser(self.game))
+                        self.last_shot_time = relative_now
+
+
         def update(self) -> None:
-                """Update ship position based on movement flags."""
+                """Update ship position and firing based on key press flags."""
+
+                # Fire lasers if conditions are met
+                self._fire_laser()
 
                 # Padding to make the transition from side to side quicker
                 buffer: int = 15
