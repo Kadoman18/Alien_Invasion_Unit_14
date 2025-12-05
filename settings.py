@@ -57,15 +57,7 @@ class Settings:
 
         def __init__(self):
                 """
-                Initialize global settings including:
-
-                - window title
-                - app icon
-                - final screen size tuple used by pygame
-                - calculated ship size scaling
-                - background and icon asset paths
-                - ship speed
-                - FPS cap
+                Initializes global settings
                 """
 
                 # Title that appears in the window bar
@@ -83,8 +75,8 @@ class Settings:
                 # Background image path
                 self.background: Path = paths.Graphics.background
 
-                self.play_button_text = "Play"
-                self.play_button_font = paths.Font.bold
+                self.play_button_text: str = "Play"
+                self.play_button_font: Path = paths.Font.bold
 
                 # Ship sprite scaling is proportional to the screen size, ensuring continuity across devices
                 self.ship_size: tuple[int, int] = (
@@ -125,10 +117,9 @@ class Settings:
 
                 # Horde Settings
                 self.horde_speed: int = 4
-                self.horde_advance: int = 50
+                self.horde_advance: int = self.alien_size[1]
                 self.horde_direction: int = 1
-                self.horde_padding: int = 20
-
+                self.horde_padding: int = 10
                 self.horde_size: tuple[int, int] = (6, 14)
 
                 # Frames per second cap for the main loop

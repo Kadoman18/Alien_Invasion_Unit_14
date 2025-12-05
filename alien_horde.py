@@ -28,13 +28,13 @@ class AlienHorde:
                 Build a grid of aliens using rows and columns from settings.
                 """
 
-                alien_width = self.settings.alien_size[0]
-                alien_height = self.settings.alien_size[1]
+                alien_width: int = self.settings.alien_size[0]
+                alien_height: int = self.settings.alien_size[1]
                 for row in range(self.settings.horde_size[0]):
                         for col in range(self.settings.horde_size[1]):
                                 alien = Aliens(self.game, alien_width, alien_height)
 
-                                padding = self.settings.horde_padding
+                                padding: int = self.settings.horde_padding
 
                                 alien.rect.x = alien_width + padding + (col * (alien_width + padding))
                                 alien.rect.y = alien_height + padding + (row * (alien_height + padding))

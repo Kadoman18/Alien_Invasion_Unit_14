@@ -51,6 +51,6 @@ class Aliens(pygame.sprite.Sprite):
                 """
                 Return True if alien touches either edge of the screen.
                 """
-                screen_rect = self.game.screen.get_rect()
+                screen_rect: pygame.Rect = self.game.screen.get_rect()
                 return self.rect.right >= screen_rect.right or \
                        self.rect.left <= 0

@@ -103,10 +103,3 @@ class Ship(pygame.sprite.Sprite):
                                 self.rect.x -= self.speed
                                 if self.rect.right < buffer:
                                         self.rect.left = self.settings.screen_size[0] - buffer
-
-
-        def draw(self) -> None:
-                """Draw the ship."""
-
-                # Draw the ship
-                self.screen_image.blit(self.image, self.rect)
