@@ -16,6 +16,7 @@ class Button:
                         text_size: int,
                         text_color: str | tuple[int, int, int],
                         fill_color: str | tuple[int, int, int],
+                        border_color: str | tuple[int, int, int],
                         game: 'AlienInvasion'
                         ) -> None:
 
@@ -26,21 +27,22 @@ class Button:
                 self.label: pygame.Surface = text_label(text, font, text_size, text_color)
 
                 # Get label size for sizing button size
-                label_size = self.label.get_size()
+                self.label_size = self.label.get_size()
 
                 # Padding between text and button edges
-                padding: int = (self.game.screen_rect[0] // 200) * 2
+                self.padding: int = (self.game.screen_rect[0] // 200)
 
                 # Set button size based on label size
-                button_size: tuple[int, int] = (label_size[0] + padding, label_size[1] + padding)
+                self.button_size: tuple[int, int] = (self.label_size[0] + self.padding, self.label_size[1] + self.padding)
+                self.fill_rect: pygame.Rect = pygame.Rect(4, 4, self.button_size[0] - 8, self.button_size[1] - 8)
 
                 # Create button surface using calculated size
-                self.button: pygame.Surface = pygame.Surface((button_size))
-                self.button.fill(fill_color)
+                self.button: pygame.Surface = pygame.Surface((self.button_size))
+                self.button.fill(border_color)
+                self.button.fill(fill_color, self.fill_rect)
 
                 # Create rect positioned at given location
                 self.rect: pygame.Rect = self.button.get_rect(center=center)
-
 
         def draw(self, surface):
                 # Draw button at its rect

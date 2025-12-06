@@ -41,9 +41,10 @@ class AlienInvasion:
                         self.settings.screen_size[0] // 35,
                         "white",
                         "green",
+                        "black",
                         self
                         )
-                self.play_button_rect = self.play_button.rect
+                self.play_button_location = self.play_button.rect
 
                 # Customize game window title and icon
                 pygame.display.set_caption(self.settings.name)
