@@ -57,6 +57,12 @@ class AlienHorde:
                         if alien.check_edges():
                                 self._advance_and_reverse()
                                 break
+                pygame.sprite.groupcollide(
+                        self.horde,
+                        self.game.lasers,
+                        True,
+                        True
+                        )
 
         def _advance_and_reverse(self):
                 """
