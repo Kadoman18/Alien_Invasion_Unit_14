@@ -4,8 +4,7 @@ Includes the core game window initialization.
 """
 
 import pygame
-import paths
-from settings import Settings
+import settings
 from ship import Ship
 from alien_horde import AlienHorde
 from button import Button
@@ -18,7 +17,7 @@ class AlienInvasion:
 
                 # Initialize
                 pygame.init()
-                self.settings = Settings()
+                self.settings = settings.Settings()
 
                 # Set the screen mode, scaling depending on screen size
                 self.screen = pygame.display.set_mode((self.settings.screen_size))
@@ -31,22 +30,20 @@ class AlienInvasion:
                         )
                 )
 
+                # Initialize pause timer
+                self.pause_duration = 0
+                self.pause_start_time = None
+
                 self.play_button = Button(
-                        "Play",
-                        paths.Font.bold,
+                        self.settings.play_button_text,
+                        self.settings.play_button_font,
                         self.screen_rect.center,
-                        (
-                                self.settings.screen_size[0] // 20,
-                                self.settings.screen_size[1] // 20
-                                ),
+                        self.settings.screen_size[0] // 35,
                         "white",
                         "green",
                         self
                         )
-                self.play_button.draw(self.screen, self.screen_rect.center)
-
-                self.pause_duration = 0
-                self.pause_start_time = None
+                self.play_button_rect = self.play_button.rect
 
                 # Customize game window title and icon
                 pygame.display.set_caption(self.settings.name)
@@ -73,6 +70,8 @@ class AlienInvasion:
 
                 # Game running boolean
                 self.running: bool = True
+
+                # Game paused boolean
                 self.paused: bool = True
 
                 # Game clock
@@ -91,8 +90,9 @@ class AlienInvasion:
                                 exit()
 
                         # Mouse Right Click event
-                        elif event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0] == True:
-                                self._toggle_pause()
+                        elif event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+                                        if self.play_button.rect.collidepoint(pygame.mouse.get_pos()):
+                                                self._toggle_pause()
 
                         # Keydown event
                         elif event.type == pygame.KEYDOWN:
@@ -134,6 +134,7 @@ class AlienInvasion:
         def _key_up_event(self, event) -> None:
                 """Listens for key up events (Key Releases)"""
 
+                # Pause button
                 if event.key == pygame.K_p:
                         self._toggle_pause()
 
@@ -156,18 +157,30 @@ class AlienInvasion:
                         self.ship.firing_rapid = False
 
         def _toggle_pause(self) -> None:
-                """Listens for right mouse click events on the play button and the pressing of P"""
+                """Handles effects on the laser fire cooldown of the game pausing"""
                 if not self.paused:
-                        # Going from unpaused → paused
+
+                        # Going from unpaused to paused
                         self.paused = True
+
+                        self.play_button.rect.center = self.screen_rect.center
+
+                        # Get current tick for pause start time
                         self.pause_start_time = pygame.time.get_ticks()
                 else:
-                        # Going from paused → unpaused
+
+                        # Going from paused to unpaused
                         self.paused = False
                         paused_time = 0
+
+                        self.play_button.rect.center = (-10000, -10000)
+
+                        # Calculate pause duration
                         if self.pause_start_time != None:
                                 paused_time = pygame.time.get_ticks() - self.pause_start_time
                         self.pause_duration += paused_time
+
+                        # Set pause timer to None
                         self.pause_start_time = None
 
         def _update_screen(self) -> None:
@@ -185,14 +198,16 @@ class AlienInvasion:
                 # Draw alien horde
                 self.horde.horde.draw(self.screen)
 
+                # Draw play button when paused
+                if self.paused:
+                        self.play_button.draw(self.screen)
+
                 # Update the display (swap buffers)
                 pygame.display.flip()
 
 
         def run_game(self) -> None:
                 """Main game loop"""
-
-
                 while self.running == True:
                         # Handle system and player events
                         self._event_listener()

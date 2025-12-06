@@ -44,7 +44,7 @@ class Laser(pygame.sprite.Sprite):
         def update(self) -> None:
                 """Updates the lasers position."""
 
-                if self.game.paused == False:
+                if not self.game.paused:
                         # Lasers movement
                         self.rect.y -= self.speed
 

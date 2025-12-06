@@ -7,7 +7,6 @@ instance to access window dimensions, settings, and display surfaces.
 """
 
 import pygame
-import paths
 from typing import TYPE_CHECKING
 
 # Forward reference to avoid circular imports at runtime
@@ -33,24 +32,20 @@ class Aliens(pygame.sprite.Sprite):
                 self.screen_rect: pygame.Rect = game.screen_rect
 
                 # Surf and rect for alien sprite
-                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(paths.Graphics.alien), self.settings.alien_size).convert_alpha()
+                self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(self.settings.alien_image), self.settings.alien_size).convert_alpha()
                 self.rect: pygame.Rect = self.image.get_rect(center = (x, y))
-
-                # Set the aliens travel speed
-                self.speed: int = self.settings.alien_speed
-
-
-        def update(self):
-                """
-                Move alien horizontally using global fleet direction.
-                """
-                self.rect.x += (self.settings.horde_speed *
-                        self.settings.horde_direction)
 
         def check_edges(self):
                 """
                 Return True if alien touches either edge of the screen.
                 """
                 screen_rect: pygame.Rect = self.game.screen.get_rect()
-                return self.rect.right >= screen_rect.right or \
-                       self.rect.left <= 0
+                return self.rect.right >= screen_rect.right or self.rect.left <= 0
+
+
+        def update(self):
+                """
+                Move alien horizontally using global horde direction.
+                """
+                self.rect.x += (self.settings.horde_speed *
+                        self.settings.horde_direction)

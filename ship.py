@@ -3,8 +3,8 @@ Ship entity for the Alien Invasion game.
 """
 
 import pygame
-import paths
 from arsenal import Laser
+import settings
 from typing import TYPE_CHECKING
 
 # Forward reference to avoid circular imports at runtime
@@ -29,9 +29,9 @@ class Ship(pygame.sprite.Sprite):
                 self.screen_rect: pygame.Rect = game.screen_rect
 
                 # Load ship image and create surface
-                self.image: pygame.Surface = pygame.image.load(paths.Graphics.ship).convert_alpha()
+                self.image: pygame.Surface = pygame.image.load(settings.Graphics.ship).convert_alpha()
                 self.image: pygame.Surface = pygame.transform.scale(
-                        pygame.image.load(paths.Graphics.ship),
+                        pygame.image.load(settings.Graphics.ship),
                         self.settings.ship_size
                 ).convert_alpha()
 
@@ -84,7 +84,7 @@ class Ship(pygame.sprite.Sprite):
 
                 # Padding to make the transition from side to side quicker
                 buffer: int = 15
-                if self.game.paused == False:
+                if not self.game.paused:
                         # Firing slows ship
                         self.speed: int  = self.settings.ship_speed
                         if self.firing and self.firing_rapid:

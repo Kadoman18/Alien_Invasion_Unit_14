@@ -2,7 +2,7 @@ import pygame
 from hud import text_label
 from typing import TYPE_CHECKING
 from pathlib import Path
-import paths
+
 if TYPE_CHECKING:
         from Alien_Invasion import AlienInvasion
 
@@ -13,28 +13,41 @@ class Button:
                         text: str,
                         font: Path,
                         center: tuple[int, int],
-                        size: tuple[int, int],
+                        text_size: int,
                         text_color: str | tuple[int, int, int],
                         fill_color: str | tuple[int, int, int],
                         game: 'AlienInvasion'
                         ) -> None:
 
-                # Basic references to AlienInvasion class and Settings class
                 self.game = game
                 self.settings = game.settings
 
-                # Main display surface and its bounding rectangle
-                self.screen_image: pygame.Surface = game.screen
-                self.screen_rect: pygame.Rect = game.screen_rect
+                # Render label
+                self.label: pygame.Surface = text_label(text, font, text_size, text_color)
 
-                self.button = pygame.Surface(size)
-                pygame.Surface.fill(self.button, fill_color)
+                # Get label size for sizing button size
+                label_size = self.label.get_size()
 
-                self.rect = self.button.get_rect(center = center)
+                # Padding between text and button edges
+                padding: int = (self.game.screen_rect[0] // 200) * 2
 
-                self.label = text_label(text, font, size[1] - (size[1] // 8), text_color)
+                # Set button size based on label size
+                button_size: tuple[int, int] = (label_size[0] + padding, label_size[1] + padding)
 
-        def draw(self, location, rect):
+                # Create button surface using calculated size
+                self.button: pygame.Surface = pygame.Surface((button_size))
+                self.button.fill(fill_color)
 
-                location.blit(self.button, rect)
-                self.button.blit(self.label, self.rect.center)
+                # Create rect positioned at given location
+                self.rect: pygame.Rect = self.button.get_rect(center=center)
+
+
+        def draw(self, surface):
+                # Draw button at its rect
+                surface.blit(self.button, self.rect)
+
+                # Center the label inside the button
+                label_rect = self.label.get_rect(center=self.button.get_rect().center)
+
+                # Blit label inside the button
+                self.button.blit(self.label, label_rect)

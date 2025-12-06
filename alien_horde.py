@@ -1,7 +1,7 @@
 """
 Horde building for the alien horde in the Alien Invasion game.
 
-MORE HEREEEE
+TODO: Add laser colision detection and removal of individual sprites
 """
 
 import pygame
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class AlienHorde:
-        """EXPLAIN"""
+        """Houses the alien horde building mechanics."""
 
         def __init__(self, game: 'AlienInvasion') -> None:
                 self.game = game
@@ -27,31 +27,30 @@ class AlienHorde:
                 """
                 Build a grid of aliens using rows and columns from settings.
                 """
+                # Spacing between aliens
+                padding: int = self.settings.horde_padding
 
-                alien_width: int = self.settings.alien_size[0]
-                alien_height: int = self.settings.alien_size[1]
+                # Extract alien measurments from settings
+                alien_size: tuple[int, int] = self.settings.alien_size
+
+                # Build the horde to set specifications
                 for row in range(self.settings.horde_size[0]):
                         for col in range(self.settings.horde_size[1]):
-                                alien = Aliens(self.game, alien_width, alien_height)
+                                alien = Aliens(self.game, alien_size[0], alien_size[1])
 
-                                padding: int = self.settings.horde_padding
+                                # Define the current aliens rect
+                                alien.rect.center = (
+                                        alien_size[0] + padding + (col * (alien_size[1] + padding)),
+                                        alien_size[0] + padding + (row * (alien_size[1] + padding))
+                                        )
 
-                                alien.rect.x = alien_width + padding + (col * (alien_width + padding))
-                                alien.rect.y = alien_height + padding + (row * (alien_height + padding))
-
+                                # Add the current alien to horde sprite group
                                 self.horde.add(alien)
 
-        def update(self):
-                """
-                Update positions for each alien and handle edge collision logic.
-                """
-                if self.game.paused == False:
-                        self._check_edges()
-                        self.horde.update()
 
-        def _check_edges(self):
+        def _check_collisions(self):
                 """
-                If any alien hits an edge, move fleet downward and reverse direction.
+                Handles collision detection for the edge of the screen,the player ship rect, and the laser rects.
                 """
                 for alien in self.horde.sprites():
                         if alien.check_edges():
@@ -66,3 +65,11 @@ class AlienHorde:
                 for alien in self.horde.sprites():
                         alien.rect.y += self.settings.horde_advance
                 self.settings.horde_direction *= -1
+
+        def update(self):
+                """
+                Update positions for each alien and handle edge collision logic.
+                """
+                if not self.game.paused:
+                        self._check_collisions()
+                        self.horde.update()
