@@ -95,6 +95,7 @@ class AlienHorde:
 
                 # End the game if all of the aliens die
                 if len(self.group.sprites()) <= 0:
+                        pygame.time.delay(600)
                         self.game.running = False
 
 
