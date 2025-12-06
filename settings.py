@@ -105,8 +105,9 @@ class Settings:
 
                 #------- Laser Settings -------
                 # Paths
-                self.laser_graphic = paths.Graphics.laser
+                self.laser_graphic: Path = paths.Graphics.laser
                 self.laser_noise: Path = paths.Audio.laser
+                self.impact_noise: Path = paths.Audio.impact
 
                 # Scale proportional to the screen size
                 self.laser_size: tuple[int, int] = (

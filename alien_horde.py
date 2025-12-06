@@ -57,12 +57,14 @@ class AlienHorde:
                         if alien.check_edges():
                                 self._advance_and_reverse()
                                 break
-                pygame.sprite.groupcollide(
+                collisions = pygame.sprite.groupcollide(
                         self.horde,
                         self.game.lasers,
                         True,
                         True
                         )
+                if collisions:
+                        pygame.mixer.Sound(self.settings.impact_noise).play()
 
         def _advance_and_reverse(self):
                 """
