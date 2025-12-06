@@ -19,7 +19,7 @@ class AlienHorde:
         def __init__(self, game: 'AlienInvasion') -> None:
                 self.game = game
                 self.settings = game.settings
-                self.horde = pygame.sprite.Group()
+                self.group = pygame.sprite.Group()
 
                 self._create_horde()
 
@@ -45,7 +45,7 @@ class AlienHorde:
                                         )
 
                                 # Add the current alien to horde sprite group
-                                self.horde.add(alien)
+                                self.group.add(alien)
 
 
         def _check_collisions(self):
@@ -53,25 +53,33 @@ class AlienHorde:
                 Handles collision detection for the edge of the screen,the player ship rect,
                 and the laser rects.
                 """
-                for alien in self.horde.sprites():
+                for alien in self.group.sprites():
                         if alien.check_edges():
                                 self._advance_and_reverse()
                                 break
-                collisions = pygame.sprite.groupcollide(
-                        self.horde,
+                laser_collisions = pygame.sprite.groupcollide(
+                        self.group,
                         self.game.lasers,
                         True,
                         True
                         )
-                if collisions:
-                        pygame.mixer.Sound(self.settings.impact_noise).play()
+                ship_collisions = pygame.sprite.groupcollide(
+                        self.group,
+                        self.game.ship_group,
+                        False,
+                        True
+                )
+                if ship_collisions:
+                        self.game.running = False
+                if laser_collisions:
+                        pygame.mixer.Sound(self.settings.impact_noise).play(0, 300, 0)
 
         def _advance_and_reverse(self):
                 """
                 Move the horde downward by one alien height
                 and reverse horizontal direction.
                 """
-                for alien in self.horde.sprites():
+                for alien in self.group.sprites():
                         alien.rect.y += self.settings.horde_advance
                 self.settings.horde_direction *= -1
 
@@ -81,4 +89,4 @@ class AlienHorde:
                 """
                 if not self.game.paused:
                         self._check_collisions()
-                        self.horde.update()
+                        self.group.update()

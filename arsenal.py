@@ -37,8 +37,8 @@ class Laser(pygame.sprite.Sprite):
 
                 # Set the lasers travel speed
                 self.speed: int = self.settings.laser_speed
-                self.laser_noise: pygame.mixer.Sound = pygame.mixer.Sound(self.settings.laser_noise)
-                self.laser_noise.play()
+                self.laser_noise: pygame.mixer.Channel = pygame.mixer.Sound(self.settings.laser_noise).play()
+                self.laser_noise
 
 
         def update(self) -> None:

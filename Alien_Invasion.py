@@ -199,7 +199,7 @@ class AlienInvasion:
                 self.lasers.draw(self.screen)
 
                 # Draw alien horde
-                self.horde.horde.draw(self.screen)
+                self.horde.group.draw(self.screen)
 
                 # Draw play button when paused
                 if self.paused:
