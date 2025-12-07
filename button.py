@@ -49,8 +49,11 @@ class Button:
                 # Get label size for sizing button size
                 self.label_size = self.label.get_size()
 
+                # State of the game
+                self.pause_only = pause_only
+
                 # Padding between text and button edges
-                self.padding: int = (self.game.screen_rect[0] // 200)
+                self.padding: int = (self.game.screen_rect.width // 100)
 
                 # Set button size based on label size
                 self.button_size: tuple[int, int] = (self.label_size[0] + self.padding, self.label_size[1] + self.padding)
@@ -67,7 +70,7 @@ class Button:
                 self.rect: pygame.Rect = self.button.get_rect(center=center)
 
 
-        def draw(self, surface) -> None:
+        def draw(self, surface, paused) -> None:
                 """
                 Renders the button and its label onto the given surface.
 
@@ -81,11 +84,22 @@ class Button:
                 Returns:
                         None
                 """
-                # Draw button at its rect
-                surface.blit(self.button, self.rect)
+                if self.pause_only and paused:
+                        # Draw button at its rect
+                        surface.blit(self.button, self.rect)
 
-                # Center the label inside the button
-                label_rect = self.label.get_rect(center=self.button.get_rect().center)
+                        # Center the label inside the button
+                        label_rect = self.label.get_rect(center=self.button.get_rect().center)
 
-                # Blit label inside the button
-                self.button.blit(self.label, label_rect)
+                        # Blit label inside the button
+                        self.button.blit(self.label, label_rect)
+
+                if not self.pause_only and not paused:
+                        # Draw button at its rect
+                        surface.blit(self.button, self.rect)
+
+                        # Center the label inside the button
+                        label_rect = self.label.get_rect(center=self.button.get_rect().center)
+
+                        # Blit label inside the button
+                        self.button.blit(self.label, label_rect)

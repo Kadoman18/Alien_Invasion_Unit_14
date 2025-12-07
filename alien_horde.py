@@ -91,11 +91,12 @@ class AlienHorde:
                         if self.settings.DEBUGGING:
                                 self.game.running = True
                         else:
+                                pygame.time.delay(1200)
                                 self.game.running = False
 
                 # End the game if all of the aliens die
                 if len(self.group.sprites()) <= 0:
-                        pygame.time.delay(600)
+                        pygame.time.delay(1200)
                         self.game.running = False
 
 

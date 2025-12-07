@@ -220,8 +220,7 @@ class AlienInvasion:
                 self.horde.group.draw(self.screen)
 
                 # Draw play button when paused
-                if self.paused:
-                        self.play_button.draw(self.screen)
+                self.play_button.draw(self.screen, self.paused)
 
                 # Update the display (swap buffers)
                 pygame.display.flip()
