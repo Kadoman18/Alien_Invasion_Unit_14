@@ -5,10 +5,9 @@ This module provides a Button class for creating clickable buttons in pygame app
 Buttons support customizable text, colors, and positioning.
 """
 
-from hud import text_label
 from pathlib import Path
-from typing import TYPE_CHECKING
 import pygame
+from typing import TYPE_CHECKING
 
 
 # Forward reference to avoid circular imports at runtime
@@ -44,7 +43,7 @@ class Button:
                 self.settings = game.settings
 
                 # Render label
-                self.label: pygame.Surface = text_label(text, font, text_size, text_color)
+                self.label: pygame.Surface = self.text_label(text, font, text_size, text_color)
 
                 # Get label size for sizing button size
                 self.label_size = self.label.get_size()
@@ -53,7 +52,7 @@ class Button:
                 self.pause_only = pause_only
 
                 # Padding between text and button edges
-                self.padding: int = (self.game.screen_rect.width // 100)
+                self.padding: int = (self.settings.screen_size[0] // 100)
 
                 # Set button size based on label size
                 self.button_size: tuple[int, int] = (self.label_size[0] + self.padding, self.label_size[1] + self.padding)
@@ -68,6 +67,42 @@ class Button:
 
                 # Create rect positioned at given location
                 self.rect: pygame.Rect = self.button.get_rect(center=center)
+
+
+        def text_label(self, text: str, font_path: Path, size: int, color: str | tuple[int, int, int]) -> pygame.Surface:
+                """
+                Render a text label using a cached pygame font.
+
+                Parameters
+                ----------
+                text : str
+                        The text content to render.
+                font_path : Path
+                        A pathlib Path object to the font file.
+                size : int
+                        The pixel size of the font.
+                color : str
+                        A pygame-compatible color value (name or RGB tuple).
+
+                Returns
+                -------
+                pygame.Surface
+                        A rendered text surface ready to blit to the screen.
+                """
+                # Extract the fonts name
+                font_key = Path(font_path).name
+
+                # Create font group in cache if missing
+                if font_key not in self.settings.font_cache:
+                        self.settings.font_cache[font_key] = {}
+
+                # Load the font at this size if not previously loaded
+                if size not in self.settings.font_cache[font_key]:
+                        self.settings.font_cache[font_key][size] = pygame.font.Font(font_path, size)
+
+                # Retrieve font from cache and render the text
+                font = self.settings.font_cache[font_key][size]
+                return font.render(text, False, color)
 
 
         def draw(self, surface, paused) -> None:

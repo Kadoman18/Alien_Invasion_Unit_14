@@ -4,56 +4,46 @@ Module providing UI/HUD rendering utilities.
 Includes font caching, and UI helpers.
 """
 
+from button import Button
 from pathlib import Path
 import pygame
-from settings import Settings
+from typing import TYPE_CHECKING
 
 
-# Reference to settings
-settings = Settings()
+# Forward reference to avoid circular imports at runtime
+if TYPE_CHECKING:
+        from Alien_Invasion import AlienInvasion
 
 
-def text_label(text: str, font_path: Path, size: int, color: str | tuple[int, int, int]) -> pygame.Surface:
-        """
-        Render a text label using a cached pygame font.
+class HUD:
+        def __init__(self, game: 'AlienInvasion') -> None:
 
-        Parameters
-        ----------
-        text : str
-                The text content to render.
-        font_path : Path
-                A pathlib Path object to the font file.
-        size : int
-                The pixel size of the font.
-        color : str
-                A pygame-compatible color value (name or RGB tuple).
+                self.game = game
+                self.settings = game.settings
 
-        Returns
-        -------
-        pygame.Surface
-                A rendered text surface ready to blit to the screen.
-        """
-        # Extract the fonts name
-        font_key = Path(font_path).name
-
-        # Create font group in cache if missing
-        if font_key not in settings.font_cache:
-                settings.font_cache[font_key] = {}
-
-        # Load the font at this size if not previously loaded
-        if size not in settings.font_cache[font_key]:
-                settings.font_cache[font_key][size] = pygame.font.Font(font_path, size)
-
-        # Retrieve font from cache and render the text
-        font = settings.font_cache[font_key][size]
-        return font.render(text, False, color)
+                # Create the play button
+                self.play_button = Button(
+                        self.settings.play_button_text,
+                        self.settings.play_button_font,
+                        ((self.settings.screen_size[0] - (self.settings.screen_size[0] // 2)),
+                         (self.settings.screen_size[1] - (self.settings.screen_size[1] // 2))),
+                        self.settings.screen_size[0] // 35,
+                        "white",
+                        "green",
+                        "black",
+                        True,
+                        game
+                        )
+                
+                # Define default play button location
+                self.play_button_location = self.play_button.rect
 
 
-# TODO
-def wave() -> None:
-        """
-        Handles the wave increments and label.
-        """
+        # TODO
+        def wave(self) -> None:
+                """
+                Handles the wave increments and label.
+                """
 
-        # Increment the wave
-        settings.wave += 1
+                # Increment the wave
+                self.settings.wave += 1
