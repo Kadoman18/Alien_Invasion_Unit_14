@@ -58,9 +58,12 @@ class Ship(pygame.sprite.Sprite):
 
         def _fire_laser(self) -> None:
                 """Handles the logic for continuous laser firing and rate"""
-                if self.game.paused:
+
+                # Don't fire while the game is paused or the player has lost
+                if self.game.paused or self.game.you_lose:
                         return
 
+                # Relative time for pause
                 now = pygame.time.get_ticks()
                 relative_now = now - self.game.pause_duration
 

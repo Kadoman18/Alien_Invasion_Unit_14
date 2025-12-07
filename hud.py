@@ -1,7 +1,7 @@
 """
 Module providing UI/HUD rendering utilities.
 
-Includes button management, font caching, and UI helpers for the Alien Invasion game.
+Includes panel/button management, font caching, and UI helpers for the Alien Invasion game.
 """
 from pathlib import Path
 import pygame
@@ -21,7 +21,7 @@ class HUD:
                 self.settings = game.settings
 
                 # Create the play button
-                self.play_button = Button(
+                self.play_button = Panel(
                         self.settings.play_button_text,
                         self.settings.play_button_font,
                         self.settings.play_button_loc,
@@ -34,7 +34,7 @@ class HUD:
                         )
 
                 # Create the pause button
-                self.pause_button = Button(
+                self.pause_button = Panel(
                         self.settings.pause_button_text,
                         self.settings.pause_button_font,
                         self.settings.pause_button_loc,
@@ -46,7 +46,7 @@ class HUD:
                         game
                         )
 
-                self.buttons = [self.play_button, self.pause_button]
+                self.panels = [self.play_button, self.pause_button]
 
         # TODO
         def wave(self) -> None:
@@ -58,12 +58,12 @@ class HUD:
                 self.settings.wave += 1
 
 
-class Button:
+class Panel:
         """
-        A clickable button class for pygame applications.
+        A UI panel class for pygame applications.
 
-        This class creates a customizable button with text, border, and fill colors.
-        The button can be positioned at a specified point and supports rendering
+        This class creates a customizable panel with text, border, and fill colors.
+        The panel can be positioned at a specified point and supports rendering
         onto pygame surfaces.
         """
 
@@ -88,32 +88,47 @@ class Button:
                 # Render label
                 self.label: pygame.Surface = self.text_label(text, font, text_size, text_color)
 
-                # Get label size for sizing button size
+                # Get label size for sizing panel
                 self.label_size = self.label.get_size()
 
                 # State of the game
                 self.pause_only = pause_only
 
-                # Padding between text and button edges
-                self.padding: int = (self.settings.screen_size[0] // 100)
+                # Padding between text and panel edges
+                self.padding: tuple[int, int] = (
+                        (self.settings.screen_size[0] // 45),
+                        (self.settings.screen_size[1] // 100)
+                        )
 
-                # Set button size based on label size
-                self.button_size: tuple[int, int] = (self.label_size[0] + self.padding, self.label_size[1] + self.padding)
-                self.fill_rect: pygame.Rect = pygame.Rect(4, 4, self.button_size[0] - 8, self.button_size[1] - 8)
+                # Set panel size based on label size and create the surface
+                self.panel_size: tuple[int, int] = (
+                        self.label_size[0] + self.padding[0], self.label_size[1] + self.padding[1]
+                        )
+                self.panel: pygame.Surface = pygame.Surface(self.panel_size)
 
-                # Create button surface using calculated size
-                self.button: pygame.Surface = pygame.Surface((self.button_size))
+                # Compute fill in local panel coordinates
+                fill_size: tuple[int, int] = (
+                        int(self.panel_size[0] * 0.9),
+                        int(self.panel_size[1] * 0.9)
+                        )
+                fill_rect = pygame.Rect(0, 0, fill_size[0], fill_size[1])
+                fill_rect.center = (self.panel_size[0] // 2, self.panel_size[1] // 2)
 
-                # Fill button with border color, fill smaller area inside with fill color
-                self.button.fill(border_color)
-                self.button.fill(fill_color, self.fill_rect)
+                self.panel.fill(border_color)
+                self.panel.fill(fill_color, fill_rect)
 
                 # Create rect positioned at given location
                 self.default_center = center
-                self.rect: pygame.Rect = self.button.get_rect(center=self.default_center)
+                self.rect: pygame.Rect = self.panel.get_rect(center=self.default_center)
 
 
-        def text_label(self, text: str, font_path: Path, size: int, color: str | tuple[int, int, int]) -> pygame.Surface:
+        def text_label(
+                        self,
+                        text: str,
+                        font_path: Path,
+                        size: int,
+                        color: str | tuple[int, int, int]
+                        ) -> pygame.Surface:
                 """
                 Render a text label using a cached pygame font.
 
@@ -150,6 +165,8 @@ class Button:
 
 
         def draw(self, surface, paused) -> None:
+
+                # Determine panel visibility based on pause state
                 visible = (self.pause_only and paused) or (not self.pause_only and not paused)
 
                 if visible:
@@ -157,14 +174,17 @@ class Button:
                         if self.rect.center != self.default_center:
                                 self.rect.center = self.default_center
 
-                        # Draw button
-                        surface.blit(self.button, self.rect)
+                        # Draw panel
+                        surface.blit(self.panel, self.rect)
 
-                        label_rect = self.label.get_rect(center=self.button.get_rect().center)
-                        self.button.blit(self.label, label_rect)
+                        # Move the labels rect into place
+                        label_rect = self.label.get_rect(center=self.panel.get_rect().center)
+
+                        # Draw the label
+                        self.panel.blit(self.label, label_rect)
 
                 else:
-                        # Move off-screen, but ONLY while hidden
+                        # Move off-screen
                         self.rect.center = (-1000, -1000)
 
 

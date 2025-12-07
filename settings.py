@@ -63,7 +63,7 @@ class Settings:
                         (self.screen_size[1] - (self.screen_size[1] // 2))
                         )
 
-                self.pause_button_text: str = " || "
+                self.pause_button_text: str = "||"
                 self.pause_button_font: Path = paths.Font.bold
                 self.pause_button_font_size: int = self.screen_size[0] // 60
                 self.pause_button_loc: tuple[int, int] = (
@@ -125,7 +125,7 @@ class Settings:
                         self.horde_speed: int = self.screen_size[0] // 121
 
                         # Set horde size (columns, rows)
-                        self.horde_size: tuple[int, int] = (1, 1)
+                        self.horde_size: tuple[int, int] = (2, 14)
                 else:
 
                         # Set horde speed proportional to screen size

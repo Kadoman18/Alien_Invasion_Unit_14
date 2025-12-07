@@ -46,8 +46,8 @@ class Aliens(pygame.sprite.Sprite):
                 # Get screen Rect
                 screen_rect: pygame.Rect = self.game.screen.get_rect()
 
-                # True if
-                return self.rect.right >= screen_rect.right or self.rect.left <= 0 or self.rect.bottom >= self.screen_rect.bottom
+                # True if touching left/right edges (bottom handled by horde)
+                return self.rect.right >= screen_rect.right or self.rect.left <= 0
 
 
 
@@ -60,9 +60,6 @@ class Aliens(pygame.sprite.Sprite):
                 # Move the alien
                 self.rect.x += (self.settings.horde_speed *
                         self.settings.horde_direction)
-
-                # Delete the alien when it leaves the screen
-                if self.rect.midtop[1] > self.screen_rect.midbottom[1]:
-                        self.game.you_lose = True
-                        self.kill()
+                # Note: bottom-of-screen handling is performed by the horde
+                # manager so we don't prematurely kill sprites here.
 

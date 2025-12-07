@@ -108,15 +108,15 @@ class AlienInvasion:
                 """Listens for key down events (Key Presses)"""
 
                 # Rightward movement
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d and not self.you_lose:
                         self.ship.moving_right = True
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and not self.you_lose:
                         self.ship.moving_right = True
 
                 # Leftward movement
-                elif event.key == pygame.K_a:
+                elif event.key == pygame.K_a and not self.you_lose:
                         self.ship.moving_left = True
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT and not self.you_lose:
                         self.ship.moving_left = True
 
                 # Firing (base and rapid)
@@ -140,15 +140,15 @@ class AlienInvasion:
                         self._toggle_pause()
 
                 # Rightward movement stop
-                elif event.key == pygame.K_d:
+                elif event.key == pygame.K_d or self.you_lose:
                         self.ship.moving_right = False
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT or self.you_lose:
                         self.ship.moving_left = False
 
                 # Leftward movement stop
-                elif event.key == pygame.K_a:
+                elif event.key == pygame.K_a or self.you_lose:
                         self.ship.moving_left = False
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT or self.you_lose:
                         self.ship.moving_right = False
 
                 # Firing stop
@@ -207,7 +207,7 @@ class AlienInvasion:
                 self.horde.group.draw(self.screen)
 
                 # Draw gui buttons
-                for button in self.hud.buttons:
+                for button in self.hud.panels:
                         button.draw(self.screen, self.paused)
 
                 # Update the display (swap buffers)
