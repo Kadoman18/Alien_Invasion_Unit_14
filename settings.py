@@ -51,6 +51,9 @@ class Settings:
                         'ss_reg': 'assets/fonts/silkscreen/silkscreen_regular.ttf',
                         'ss_bold': 'assets/fonts/silkscreen/silkscreen_bold.ttf'
 }
+                # Scores file
+                self.scores_file: Path = paths.File.scores
+
                 # Dummy variable for wave counter (not done yet)
                 self.wave: int = 1
 
@@ -80,6 +83,9 @@ class Settings:
                         self.screen_size[1] // 10
                 )
 
+                # Lives Count
+                self.starting_lives = 3
+
                 # Set ships speed proportional to screen size
                 self.ship_speed: int = self.screen_size[0] // 150
                 self.ship_wrap_buffer: int = 25
@@ -89,8 +95,8 @@ class Settings:
                 self.ship_rapid_firing_speed: int = self.ship_speed // 2
 
                 # Fire rate for continuous ship fire
-                self.ship_base_fire_rate: int = 750
-                self.ship_rapid_fire_rate: int = 250
+                self.ship_base_fire_rate: int = 250
+                self.ship_rapid_fire_rate: int = 175
 
                 #------- Laser Settings -------
                 # Paths
@@ -116,6 +122,8 @@ class Settings:
                         self.screen_size[0] // 25,
                         self.screen_size[1] // 15
                 )
+
+                self.alien_value = 5
 
                 #------- Horde Settings -------
                 # Debugging option
