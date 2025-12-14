@@ -5,7 +5,7 @@ Includes the core game window initialization, event handling, and game state man
 """
 
 from alien_horde import AlienHorde
-from hud import HUD
+import hud
 from ship import Ship
 import pygame
 import settings
@@ -24,7 +24,7 @@ class AlienInvasion:
                 self.settings = settings.Settings()
 
                 # Reference HUD
-                self.hud = HUD(self)
+                self.hud = hud.HUD(self)
 
                 # Set the screen mode, scaling depending on screen size
                 self.screen = pygame.display.set_mode((self.settings.screen_size))
@@ -208,7 +208,7 @@ class AlienInvasion:
 
                 # Draw gui buttons
                 for button in self.hud.panels:
-                        button.draw(self.screen, self.paused)
+                        hud.Panel.draw(button, self.screen, self.paused)
 
                 # Update the display (swap buffers)
                 pygame.display.flip()

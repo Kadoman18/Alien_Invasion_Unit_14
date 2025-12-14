@@ -22,6 +22,7 @@ class HUD:
 
                 # Create the play button
                 self.play_button = Panel(
+                        self.game,
                         self.settings.play_button_text,
                         self.settings.play_button_font,
                         self.settings.play_button_loc,
@@ -29,12 +30,12 @@ class HUD:
                         "white",
                         "green",
                         "gray",
-                        True,
-                        game
+                        True
                         )
 
                 # Create the pause button
                 self.pause_button = Panel(
+                        self.game,
                         self.settings.pause_button_text,
                         self.settings.pause_button_font,
                         self.settings.pause_button_loc,
@@ -42,149 +43,92 @@ class HUD:
                         "white",
                         "green",
                         "gray",
-                        False,
-                        game
+                        False
                         )
 
                 self.panels = [self.play_button, self.pause_button]
 
-        # TODO
-        def wave(self) -> None:
-                """
-                Handles the wave increments and label.
-                """
+class TextLabel:
+        """
+        Handles a single text label.
+        """
 
-                # Increment the wave
-                self.settings.wave += 1
+        def __init__(self, game, text: str, font_path: Path, size: int, color: str | tuple[int, int, int]):
+                self.game = game
+                self.settings = game.settings
+                self.text = text
+                self.color = color
+
+                # Load font with caching
+                font_key = Path(font_path).name
+                if font_key not in self.settings.font_cache:
+                        self.settings.font_cache[font_key] = {}
+                if size not in self.settings.font_cache[font_key]:
+                        self.settings.font_cache[font_key][size] = pygame.font.Font(font_path, size)
+                self.font = self.settings.font_cache[font_key][size]
+
+                # Render surface
+                self.surface = self.font.render(text, False, color)
+                self.rect = self.surface.get_rect()
+
+        def draw(self, surface: pygame.Surface, center: tuple[int, int]):
+                if center:
+                        self.rect.center = center
+                surface.blit(self.surface, self.rect)
 
 
 class Panel:
         """
-        A UI panel class for pygame applications.
-
-        This class creates a customizable panel with text, border, and fill colors.
-        The panel can be positioned at a specified point and supports rendering
-        onto pygame surfaces.
+        Handles a panel with text overlay.
         """
 
-        # Initialize local variables
         def __init__(
                         self,
+                        game,
                         text: str,
-                        font: Path,
+                        font_path: Path,
                         center: tuple[int, int],
                         text_size: int,
                         text_color: str | tuple[int, int, int],
                         fill_color: str | tuple[int, int, int],
                         border_color: str | tuple[int, int, int],
-                        pause_only: bool,
-                        game: 'AlienInvasion'
-                        ) -> None:
-
-                # Import game reference and settings
+                        pause_only: bool = False
+                        ):
                 self.game = game
                 self.settings = game.settings
-
-                # Render label
-                self.label: pygame.Surface = self.text_label(text, font, text_size, text_color)
-
-                # Get label size for sizing panel
-                self.label_size = self.label.get_size()
-
-                # State of the game
                 self.pause_only = pause_only
 
-                # Padding between text and panel edges
-                self.padding: tuple[int, int] = (
-                        (self.settings.screen_size[0] // 45),
-                        (self.settings.screen_size[1] // 100)
-                        )
+                # Create the text label
+                self.label = TextLabel(game, text, font_path, text_size, text_color)
 
-                # Set panel size based on label size and create the surface
-                self.panel_size: tuple[int, int] = (
-                        self.label_size[0] + self.padding[0], self.label_size[1] + self.padding[1]
-                        )
-                self.panel: pygame.Surface = pygame.Surface(self.panel_size)
+                # Padding
+                self.padding = (self.settings.screen_size[0] // 45, self.settings.screen_size[1] // 100)
 
-                # Compute fill in local panel coordinates
-                fill_size: tuple[int, int] = (
-                        int(self.panel_size[0] * 0.9),
-                        int(self.panel_size[1] * 0.9)
-                        )
+                # Panel size
+                self.panel_size = (self.label.rect.width + self.padding[0], self.label.rect.height + self.padding[1])
+                self.surface = pygame.Surface(self.panel_size)
+
+                # Fill panel
+                fill_size = (int(self.panel_size[0] * 0.9), int(self.panel_size[1] * 0.9))
                 fill_rect = pygame.Rect(0, 0, fill_size[0], fill_size[1])
                 fill_rect.center = (self.panel_size[0] // 2, self.panel_size[1] // 2)
+                self.surface.fill(border_color)
+                self.surface.fill(fill_color, fill_rect)
 
-                self.panel.fill(border_color)
-                self.panel.fill(fill_color, fill_rect)
-
-                # Create rect positioned at given location
+                # Position rect
+                self.rect = self.surface.get_rect(center=center)
                 self.default_center = center
-                self.rect: pygame.Rect = self.panel.get_rect(center=self.default_center)
 
-
-        def text_label(
-                        self,
-                        text: str,
-                        font_path: Path,
-                        size: int,
-                        color: str | tuple[int, int, int]
-                        ) -> pygame.Surface:
-                """
-                Render a text label using a cached pygame font.
-
-                Parameters
-                ----------
-                text : str
-                        The text content to render.
-                font_path : Path
-                        A pathlib Path object to the font file.
-                size : int
-                        The pixel size of the font.
-                color : str
-                        A pygame-compatible color value (name or RGB tuple).
-
-                Returns
-                -------
-                pygame.Surface
-                        A rendered text surface ready to blit to the screen.
-                """
-                # Extract the fonts name
-                font_key = Path(font_path).name
-
-                # Create font group in cache if missing
-                if font_key not in self.settings.font_cache:
-                        self.settings.font_cache[font_key] = {}
-
-                # Load the font at this size if not previously loaded
-                if size not in self.settings.font_cache[font_key]:
-                        self.settings.font_cache[font_key][size] = pygame.font.Font(font_path, size)
-
-                # Retrieve font from cache and render the text
-                font = self.settings.font_cache[font_key][size]
-                return font.render(text, False, color)
-
-
-        def draw(self, surface, paused) -> None:
-
-                # Determine panel visibility based on pause state
+        def draw(self, surface: pygame.Surface, paused: bool = False):
+                # Show only if pause_only matches pause state
                 visible = (self.pause_only and paused) or (not self.pause_only and not paused)
-
                 if visible:
-                        # Restore original location
-                        if self.rect.center != self.default_center:
-                                self.rect.center = self.default_center
+                        self.rect.center = self.default_center
+                        surface.blit(self.surface, self.rect)
 
-                        # Draw panel
-                        surface.blit(self.panel, self.rect)
-
-                        # Move the labels rect into place
-                        label_rect = self.label.get_rect(center=self.panel.get_rect().center)
-
-                        # Draw the label
-                        self.panel.blit(self.label, label_rect)
-
+                        # Draw label in panel center
+                        label_rect = self.label.surface.get_rect(center=self.surface.get_rect().center)
+                        self.surface.blit(self.label.surface, label_rect)
                 else:
-                        # Move off-screen
+                        # Move offscreen if hidden
                         self.rect.center = (-1000, -1000)
-
-
