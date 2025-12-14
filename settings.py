@@ -73,6 +73,8 @@ class Settings:
                         self.screen_size[0] - (self.screen_size[0] // 25),
                         int(self.screen_size[1] * 0.06)
                         )
+                
+                self.score_font: Path = paths.Font.regular
 
                 #------- Ship settings -------
                 # Paths

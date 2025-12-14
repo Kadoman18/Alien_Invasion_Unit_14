@@ -210,6 +210,10 @@ class AlienInvasion:
                 for button in self.hud.panels:
                         hud.Panel.draw(button, self.screen, self.paused)
 
+                # Draw ui labels
+                for label in self.hud.labels:
+                        hud.TextLabel.draw(label, self.screen, (20, 20))
+
                 # Update the display (swap buffers)
                 pygame.display.flip()
 

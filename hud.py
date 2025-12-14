@@ -5,6 +5,7 @@ Includes panel/button management, font caching, and UI helpers for the Alien Inv
 """
 from pathlib import Path
 import pygame
+from game_stats import GameStats
 from typing import TYPE_CHECKING
 
 
@@ -19,6 +20,7 @@ class HUD:
                 # Import game reference and settings
                 self.game = game
                 self.settings = game.settings
+                self.stats = GameStats(self.game)
 
                 # Create the play button
                 self.play_button = Panel(
@@ -45,8 +47,14 @@ class HUD:
                         "gray",
                         False
                         )
+                
+                # Hi Score display
+                self.score_display = TextLabel(
+                        self.game, f"Score: {self.stats.score}", self.settings.score_font, 20, "white"
+                )
 
                 self.panels = [self.play_button, self.pause_button]
+                self.labels = [self.score_display]
 
 class TextLabel:
         """
