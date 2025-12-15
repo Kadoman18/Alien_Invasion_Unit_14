@@ -1,6 +1,7 @@
 """
 """
 
+import pygame
 import json
 from typing import TYPE_CHECKING
 
@@ -16,13 +17,13 @@ class GameStats:
                 """
                 self.game = game
                 self.settings = game.settings
-                self.max_score = 0
+                self.max_score: int = 0
                 self.init_saved_scores()
                 self.reset_stats(game)
-                self.wave = 1
+                self.wave: int = 1
 
 
-        def init_saved_scores(self):
+        def init_saved_scores(self) -> None:
                 """
                 """
                 self.path = self.settings.score_file
@@ -35,7 +36,7 @@ class GameStats:
                     self.save_scores()
 
 
-        def save_scores(self):
+        def save_scores(self) -> None:
                 """
                 """
                 scores = {'hi_score': self.hi_score}
@@ -46,7 +47,7 @@ class GameStats:
                     print("File not found!:", e)
 
 
-        def reset_stats(self, game: 'AlienInvasion'):
+        def reset_stats(self, game: 'AlienInvasion') -> None:
                 """
                 """
                 self.lives_left = game.settings.starting_lives
@@ -54,22 +55,14 @@ class GameStats:
                 self.wave = 1
 
 
-        def update(self, collisions: dict):
+        def update(self, collisions: dict[pygame.sprite.Sprite, list[pygame.sprite.Sprite]]) -> None:
                 """
                 """
                 self._update_score(collisions)
-                self._update_max_score()
                 self._update_hi_score()
 
 
-        def _update_max_score(self):
-                """
-                """
-                if self.score > self.max_score:
-                    self.max_score = self.score
-
-
-        def _update_hi_score(self):
+        def _update_hi_score(self) -> None:
                 """
                 """
                 if self.score > self.hi_score:
@@ -77,14 +70,14 @@ class GameStats:
                     self.save_scores()
 
 
-        def _update_score(self, collisions: dict):
+        def _update_score(self, collisions: dict) -> None:
                 """
                 """
                 for alien in collisions.values():
                     self.score += self.settings.alien_value
 
 
-        def update_wave(self):
+        def update_wave(self) -> None:
                 """
                 """
                 self.wave += 1

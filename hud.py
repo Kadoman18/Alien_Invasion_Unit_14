@@ -5,7 +5,6 @@ Includes panel/button management, font caching, and UI helpers for the Alien Inv
 """
 from pathlib import Path
 import pygame
-from game_stats import GameStats
 from typing import TYPE_CHECKING
 
 

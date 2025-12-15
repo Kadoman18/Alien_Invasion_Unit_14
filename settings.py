@@ -3,12 +3,11 @@ Settings module defining global configuration for the Alien Invasion game.
 
 Provides asset paths, screen size detection (with macOS adjustments), and global settings.
 """
-
+from dataclasses import dataclass
 from pathlib import Path
 import paths
 import platform
 import pygame
-import game_stats
 
 
 class Settings:
@@ -20,7 +19,7 @@ class Settings:
         """
 
         # Initialize local variables for import and global use
-        def __init__(self):
+        def __init__(self) -> None:
                 """
                 Initializes global settings
                 """
@@ -97,7 +96,7 @@ class Settings:
                 self.pause_button_font_size: int = self.screen_size[0] // 60
                 self.pause_button_loc: tuple[int, int] = (
                         self.screen_size[0] - (self.screen_size[0] // 25),
-                        int(self.screen_size[1] * 0.06)
+                        int(self.screen_size[1] * 0.07)
                         )
 
                 #------- Ship settings -------
@@ -193,7 +192,7 @@ class Settings:
                 self.horde_padding: int = self.screen_size[0] // 147
 
 
-        def ScreenSize(self):
+        def ScreenSize(self) -> tuple[int, int]:
                 """
                 Represents the usable screen area for the game window.
 

@@ -7,7 +7,6 @@ of the alien sprite group.
 
 import pygame
 from alien import Aliens
-from game_stats import GameStats
 from typing import TYPE_CHECKING
 
 
@@ -36,16 +35,14 @@ class AlienHorde:
                 # Remaining advance distance for edge-triggered advance
                 self._advance_remaining: int = 0
 
-                # When aliens reach the bottom, enter final descent mode:
-                # move straight down (no horizontal movement) until off-screen,
-                # then wait and end the game.
+                # When aliens reach the bottom or kill the player
                 self.descent_stage: bool = False
 
                 # Create the horde
                 self._create_horde()
 
 
-        def _create_horde(self):
+        def _create_horde(self) -> None:
                 """Build a grid of aliens using rows and columns from settings."""
 
                 # Spacing between aliens
@@ -69,7 +66,7 @@ class AlienHorde:
                                 self.group.add(alien)
 
 
-        def _check_collisions(self):
+        def _check_collisions(self) -> None:
                 """
                 Handles collision detection for the edges of the screen, the player ship rect,
                 and the laser rects.
@@ -128,7 +125,7 @@ class AlienHorde:
 
 
 
-        def _advance_and_reverse(self):
+        def _advance_and_reverse(self) -> None:
                 """
                 Move the horde downward by one alien height and reverse horizontal
                 direction.
@@ -140,7 +137,7 @@ class AlienHorde:
                 self.settings.horde_direction *= -1
 
 
-        def update(self):
+        def update(self) -> None:
                 """
                 Update positions for each alien and handle edge collision logic.
                 """
@@ -148,7 +145,7 @@ class AlienHorde:
                 # Only update if the game is not paused
                 self._check_collisions()
 
-                        # If collision is an edge, advancing sets to true
+                # If collision is an edge, advancing sets to true
                 if self.advancing:
 
                         # How much to move this frame (this is an if-less if statement, it returns the smaller amount)
@@ -168,8 +165,7 @@ class AlienHorde:
                                 self._advance_remaining = 0
                                 self.settings.horde_direction *= -1
 
-                # If we're in final descent mode, move all aliens straight
-                # down at the configured speed until they exit the screen.
+                # If in final descent, move all aliens straight down
                 if self.descent_stage:
                         for alien in self.group.sprites():
                                 alien.rect.y += self.settings.horde_speed
@@ -186,6 +182,10 @@ class AlienHorde:
                         self.group.update()
 
         def reset(self) -> None:
+                """
+                Resets the horde for level advancing and life loss
+                """
+
                 self.group.empty()
                 self.advancing = False
                 self.descent_stage = False
