@@ -19,12 +19,13 @@ class GameStats:
                 self.max_score = 0
                 self.init_saved_scores()
                 self.reset_stats(game)
+                self.wave = 1
 
 
         def init_saved_scores(self):
                 """
                 """
-                self.path = self.settings.scores_file
+                self.path = self.settings.score_file
                 if self.path.exists() and self.path.stat().st_size > 0:
                     contents = self.path.read_text()
                     scores = json.loads(contents)
@@ -83,7 +84,6 @@ class GameStats:
                 """
                 for alien in collisions.values():
                     self.score += self.settings.alien_value
-                print("SCORE:", self.score)
 
 
         def update_wave(self):

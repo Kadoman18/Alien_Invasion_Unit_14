@@ -7,6 +7,7 @@ of the alien sprite group.
 
 import pygame
 from alien import Aliens
+from game_stats import GameStats
 from typing import TYPE_CHECKING
 
 
@@ -24,6 +25,7 @@ class AlienHorde:
                 # Import game reference and settings
                 self.game = game
                 self.settings = game.settings
+                self.stats = game.stats
 
                 # Initialize horde group
                 self.group = pygame.sprite.Group()
@@ -106,8 +108,13 @@ class AlienHorde:
                         )
 
                 # Play destruct sound effect (it seemed long so I shortened it)
-                if laser_collisions:
+                for collision in laser_collisions:
                         pygame.mixer.Sound(self.settings.impact_noise).play(0, 325, 0)
+
+                        # Add value of alien to score
+                        self.stats.update(laser_collisions)
+                        print(f"Score: {self.stats.score}")
+
                 ship_collisions = pygame.sprite.groupcollide(
                         self.group,
                         self.game.ship_group,
@@ -133,6 +140,7 @@ class AlienHorde:
                         if not self.game.you_lose:
                                 pygame.time.delay(1200)
                                 self._create_horde()
+                                self.stats.update_wave()
 
                         # Aliens win, game over
                         else:

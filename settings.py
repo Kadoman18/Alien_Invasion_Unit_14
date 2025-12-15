@@ -8,6 +8,7 @@ from pathlib import Path
 import paths
 import platform
 import pygame
+import game_stats
 
 
 class Settings:
@@ -27,7 +28,7 @@ class Settings:
                 # Easy Toggle for testing screen sizes and their effects on gameplay
                 self.DEBUGGING: bool = False
 
-                #------- General Settings
+                #------- General Settings -------
                 # Title that appears in the window bar
                 self.name: str = '👾 Alien Invasion 👾'
 
@@ -50,14 +51,38 @@ class Settings:
                 self.fonts: dict = {
                         'ss_reg': 'assets/fonts/silkscreen/silkscreen_regular.ttf',
                         'ss_bold': 'assets/fonts/silkscreen/silkscreen_bold.ttf'
-}
-                # Scores file
-                self.scores_file: Path = paths.File.scores
+                }
 
-                # Dummy variable for wave counter (not done yet)
-                self.wave: int = 1
+                #------- UI/GUI Settings -------
+                #---- Label Settings ----
+                # Hi-Score label
+                self.hi_score_file: Path = paths.File.scores
+                self.hi_score_font: Path = paths.Font.regular
+                self.hi_score_size: int = self.screen_size[1] // 25
+                self.hi_score_loc: tuple[int, int] = (
+                                self.screen_size[0] - (self.screen_size[0] // 10),
+                                self.screen_size[1] // 50
+                                )
 
-                #------- Button Settings -------
+                # Score label
+                self.score_file: Path = paths.File.scores
+                self.score_font: Path = paths.Font.regular
+                self.score_size: int = self.screen_size[1] // 25
+                self.score_loc: tuple[int, int] = (
+                                self.screen_size[0] // 2,
+                                self.screen_size[1] // 50
+                                )
+
+                # Wave label
+                self.wave_font: Path = paths.Font.regular
+                self.wave_size: int = self.screen_size[1] // 25
+                self.wave_loc: tuple[int, int] = (
+                                self.screen_size[0] // 17,
+                                self.screen_size[1] // 50
+                                )
+
+                #---- Panel Settings ----
+                # Play button
                 self.play_button_text: str = "Play"
                 self.play_button_font: Path = paths.Font.bold
                 self.play_button_font_size: int = self.screen_size[0] // 35
@@ -66,6 +91,7 @@ class Settings:
                         (self.screen_size[1] - (self.screen_size[1] // 2))
                         )
 
+                # Pause button
                 self.pause_button_text: str = "||"
                 self.pause_button_font: Path = paths.Font.bold
                 self.pause_button_font_size: int = self.screen_size[0] // 60
@@ -73,8 +99,6 @@ class Settings:
                         self.screen_size[0] - (self.screen_size[0] // 25),
                         int(self.screen_size[1] * 0.06)
                         )
-                
-                self.score_font: Path = paths.Font.regular
 
                 #------- Ship settings -------
                 # Paths

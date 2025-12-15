@@ -4,9 +4,10 @@ Module providing the main Alien Invasion game loop using pygame.
 Includes the core game window initialization, event handling, and game state management.
 """
 
-from alien_horde import AlienHorde
+import alien_horde
+import game_stats
 import hud
-from ship import Ship
+import ship
 import pygame
 import settings
 
@@ -22,6 +23,9 @@ class AlienInvasion:
 
                 # Reference settings
                 self.settings = settings.Settings()
+
+                # Reference stats
+                self.stats = game_stats.GameStats(self)
 
                 # Reference HUD
                 self.hud = hud.HUD(self)
@@ -53,7 +57,7 @@ class AlienInvasion:
                 self.sky_rect: pygame.Rect = self.sky_image.get_rect()
 
                 # Create the player's ship sprite, sprite group, and add the sprite to it.
-                self.ship = Ship(self)
+                self.ship = ship.Ship(self)
                 self.ship_group = pygame.sprite.GroupSingle()
                 self.ship_group.add(self.ship)
 
@@ -62,7 +66,7 @@ class AlienInvasion:
                 self.lasers_noise = pygame.mixer.Sound(self.settings.laser_noise)
 
                 # Create the horde of aliens
-                self.horde = AlienHorde(self)
+                self.horde = alien_horde.AlienHorde(self)
 
                 # Player hasnt lost.. yet..
                 self.you_lose: bool = False
@@ -206,13 +210,8 @@ class AlienInvasion:
                 # Draw alien horde
                 self.horde.group.draw(self.screen)
 
-                # Draw gui buttons
-                for button in self.hud.panels:
-                        hud.Panel.draw(button, self.screen, self.paused)
-
-                # Draw ui labels
-                for label in self.hud.labels:
-                        hud.TextLabel.draw(label, self.screen, (20, 20))
+                # Draw HUD
+                self.hud.draw(self.screen)
 
                 # Update the display (swap buffers)
                 pygame.display.flip()
