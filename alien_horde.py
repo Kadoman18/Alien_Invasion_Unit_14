@@ -75,29 +75,22 @@ class AlienHorde:
                 and the laser rects.
                 """
 
-                # If any alien reaches the bottom of the screen, enter final
-                # descent mode: freeze horizontal movement, freeze the ship,
-                # and move straight down until all aliens are off-screen.
                 screen_rect = self.game.screen.get_rect()
-                if not self.descent_stage and not self.advancing:
-                        for alien in self.group.sprites():
-                                if alien.rect.bottom >= screen_rect.bottom:
-                                        self.descent_stage = True
-                                        # freeze player controls
-                                        self.game.you_lose = True
-                                        break
 
-                # Start advancing when the horde hits the left/right edges of the screen.
-                # We don't immediately reverse here; instead we set an advancing
-                # state so the horde moves down over time at the configured
-                # horde/alien speed, then reverse when the advance completes.
-                if not self.advancing and not self.descent_stage:
-                        for alien in self.group.sprites():
-                                if alien.check_edges():
-                                        # Begin an advance equal to one alien height
-                                        self.advancing = True
-                                        self._advance_remaining = self.settings.horde_advance
-                                        break
+                # Only one pass through the aliens
+                for alien in self.group.sprites():
+
+                        # Check if any alien hits the bottom or collides with the player
+                        if not self.descent_stage and (alien.rect.bottom >= screen_rect.bottom):
+                                self.descent_stage = True
+                                self.game.you_lose = True
+                                break  # final descent takes priority
+
+                        # Check if the horde hits screen edges (only if not advancing or descending)
+                        if not self.advancing and not self.descent_stage and alien.check_edges():
+                                self.advancing = True
+                                self._advance_remaining = self.settings.horde_advance
+                                break
 
                 # Delete self and laser when alien in horde is shot
                 laser_collisions = pygame.sprite.groupcollide(
@@ -129,7 +122,7 @@ class AlienHorde:
                         self.game.you_lose = True
 
                 # All aliens are dead, what now?
-                if len(self.group) == 0 and not self.game.you_lose:
+                if not self.group and not self.game.you_lose:
                         self.stats.update_wave()
                         self.reset()
 
@@ -183,7 +176,7 @@ class AlienHorde:
                                 if alien.rect.top > self.game.screen_rect.bottom:
                                         alien.kill()
 
-                        if len(self.group) == 0:
+                        if not self.group:
                                 self.game.on_descent_complete()
 
                         return

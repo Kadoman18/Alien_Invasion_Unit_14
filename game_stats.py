@@ -67,7 +67,6 @@ class GameStats:
                 """
                 if self.score > self.max_score:
                     self.max_score = self.score
-                print("MAX:", self.max_score)
 
 
         def _update_hi_score(self):
@@ -76,7 +75,6 @@ class GameStats:
                 if self.score > self.hi_score:
                     self.hi_score = self.score
                     self.save_scores()
-                print("HI:", self.hi_score)
 
 
         def _update_score(self, collisions: dict):
@@ -90,4 +88,3 @@ class GameStats:
                 """
                 """
                 self.wave += 1
-                print("Wave:", self.wave)
