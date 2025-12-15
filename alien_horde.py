@@ -39,7 +39,7 @@ class AlienHorde:
                 # When aliens reach the bottom, enter final descent mode:
                 # move straight down (no horizontal movement) until off-screen,
                 # then wait and end the game.
-                self.final_descend: bool = False
+                self.descent_stage: bool = False
 
                 # Create the horde
                 self._create_horde()
@@ -79,10 +79,10 @@ class AlienHorde:
                 # descent mode: freeze horizontal movement, freeze the ship,
                 # and move straight down until all aliens are off-screen.
                 screen_rect = self.game.screen.get_rect()
-                if not self.final_descend:
+                if not self.descent_stage and not self.advancing:
                         for alien in self.group.sprites():
                                 if alien.rect.bottom >= screen_rect.bottom:
-                                        self.final_descend = True
+                                        self.descent_stage = True
                                         # freeze player controls
                                         self.game.you_lose = True
                                         break
@@ -91,7 +91,7 @@ class AlienHorde:
                 # We don't immediately reverse here; instead we set an advancing
                 # state so the horde moves down over time at the configured
                 # horde/alien speed, then reverse when the advance completes.
-                if not self.advancing and not self.final_descend:
+                if not self.advancing and not self.descent_stage:
                         for alien in self.group.sprites():
                                 if alien.check_edges():
                                         # Begin an advance equal to one alien height
@@ -119,33 +119,19 @@ class AlienHorde:
                         self.group,
                         self.game.ship_group,
                         False,
-                        True
-                )
+                        False
+                        )
 
-                # End the game if the player is killed by the aliens
-                if ship_collisions:
-                        if self.settings.DEBUGGING:
-                                self.game.you_lose = False
-                                self.final_descend = True
-                                pygame.mixer.Sound(self.settings.impact_noise).play()
-                        else:
-                                self.game.you_lose = True
-                                self.final_descend = True
-                                pygame.mixer.Sound(self.settings.impact_noise).play()
+                if ship_collisions and not self.descent_stage:
+                        self.game.ship_group.empty()
+                        pygame.mixer.Sound.play(pygame.mixer.Sound(self.settings.impact_noise))
+                        self.descent_stage = True
+                        self.game.you_lose = True
 
                 # All aliens are dead, what now?
-                if len(self.group.sprites()) <= 0:
-
-                        # Aliens defeated, new wave
-                        if not self.game.you_lose:
-                                pygame.time.delay(1200)
-                                self._create_horde()
-                                self.stats.update_wave()
-
-                        # Aliens win, game over
-                        else:
-                                pygame.time.delay(1200)
-                                self.game.running = False
+                if len(self.group) == 0 and not self.game.you_lose:
+                        self.stats.update_wave()
+                        self.reset()
 
 
 
@@ -167,41 +153,48 @@ class AlienHorde:
                 """
 
                 # Only update if the game is not paused
-                if not self.game.paused:
-
-                        # First, detect collisions
-                        self._check_collisions()
+                self._check_collisions()
 
                         # If collision is an edge, advancing sets to true
-                        if self.advancing:
+                if self.advancing:
 
-                                # How much to move this frame
-                                step = min(self._advance_remaining, abs(self.settings.horde_speed))
-                                if step > 0:
-                                        for alien in self.group.sprites():
-                                                alien.rect.y += step
-                                        self._advance_remaining -= step
-
-                                # If done advancing, reverse direction and clear state
-                                if self._advance_remaining <= 0:
-                                        self.advancing = False
-                                        self._advance_remaining = 0
-                                        self.settings.horde_direction *= -1
-
-                        # If we're in final descent mode, move all aliens straight
-                        # down at the configured speed until they exit the screen.
-                        if self.final_descend:
-                                step = abs(self.settings.horde_speed) or 1
+                        # How much to move this frame (this is an if-less if statement, it returns the smaller amount)
+                        step = (
+                                (self._advance_remaining * (self._advance_remaining < self.settings.horde_speed))
+                                +
+                                (self.settings.horde_speed * (self.settings.horde_speed <= self._advance_remaining))
+                                )
+                        if step > 0:
                                 for alien in self.group.sprites():
                                         alien.rect.y += step
+                                self._advance_remaining -= step
 
-                                # If all aliens have moved entirely off the bottom,
-                                # wait 1 second then end the game.
-                                if all(a.rect.top > self.game.screen_rect.bottom for a in self.group.sprites()):
-                                        pygame.time.delay(1000)
-                                        self.game.running = False
-                                return
+                        # If done advancing, reverse direction and clear state
+                        if self._advance_remaining <= 0:
+                                self.advancing = False
+                                self._advance_remaining = 0
+                                self.settings.horde_direction *= -1
 
-                        # Normal horizontal movement when not advancing/final
-                        if not self.advancing:
-                                self.group.update()
+                # If we're in final descent mode, move all aliens straight
+                # down at the configured speed until they exit the screen.
+                if self.descent_stage:
+                        for alien in self.group.sprites():
+                                alien.rect.y += self.settings.horde_speed
+                                if alien.rect.top > self.game.screen_rect.bottom:
+                                        alien.kill()
+
+                        if len(self.group) == 0:
+                                self.game.on_descent_complete()
+
+                        return
+
+                # Normal horizontal movement when not advancing/final
+                if not self.advancing:
+                        self.group.update()
+
+        def reset(self) -> None:
+                self.group.empty()
+                self.advancing = False
+                self.descent_stage = False
+                self._advance_remaining = 0
+                self._create_horde()

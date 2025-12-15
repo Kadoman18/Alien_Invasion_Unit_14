@@ -85,24 +85,21 @@ class Ship(pygame.sprite.Sprite):
 
                 # Fire lasers if conditions are met
                 self._fire_laser()
+                # Firing slows ship
+                self.speed: int  = self.settings.ship_speed
+                if self.firing and self.firing_rapid:
+                        self.speed: int  = self.settings.ship_rapid_firing_speed
+                elif self.firing:
+                        self.speed: int = self.settings.ship_base_firing_speed
 
-                # Padding to make the transition from side to side quicker
-                if not self.game.paused:
-                        # Firing slows ship
-                        self.speed: int  = self.settings.ship_speed
-                        if self.firing and self.firing_rapid:
-                                self.speed: int  = self.settings.ship_rapid_firing_speed
-                        elif self.firing:
-                                self.speed: int = self.settings.ship_base_firing_speed
+                # Rightward movement and wrapping
+                if self.moving_right:
+                        self.rect.x += self.speed
+                        if self.rect.left > self.settings.screen_size[0] - self.settings.ship_wrap_buffer:
+                                self.rect.right = self.settings.ship_wrap_buffer
 
-                        # Rightward movement and wrapping
-                        if self.moving_right:
-                                self.rect.x += self.speed
-                                if self.rect.left > self.settings.screen_size[0] - self.settings.ship_wrap_buffer:
-                                        self.rect.right = self.settings.ship_wrap_buffer
-
-                        # Leftward movement and wrapping
-                        if self.moving_left:
-                                self.rect.x -= self.speed
-                                if self.rect.right < self.settings.ship_wrap_buffer:
-                                        self.rect.left = self.settings.screen_size[0] - self.settings.ship_wrap_buffer
+                # Leftward movement and wrapping
+                if self.moving_left:
+                        self.rect.x -= self.speed
+                        if self.rect.right < self.settings.ship_wrap_buffer:
+                                self.rect.left = self.settings.screen_size[0] - self.settings.ship_wrap_buffer

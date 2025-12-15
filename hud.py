@@ -22,6 +22,10 @@ class HUD:
                 self.settings = game.settings
                 self.stats = game.stats
 
+                # Lifes icons
+                self.life_display_image = pygame.image.load(self.settings.ship_image).convert_alpha()
+                self.life_display_image = pygame.transform.scale(self.life_display_image, self.settings.life_display_icon_size)
+
                 # Create the play button
                 self.play_button = Panel(
                         self.game,
@@ -85,8 +89,17 @@ class HUD:
                 self.score_display.set_text(f"Score: {self.stats.score}")
                 self.wave_display.set_text(f"Wave: {self.stats.wave}")
                 self.hi_score_display.set_text(f"Hi-Score: {self.stats.hi_score}")
+
+                # Draw lives
+                lifeX, lifeY = self.settings.life_display_loc
+                for life in range(self.stats.lives_left):
+                        rect = self.life_display_image.get_rect(topleft=(lifeX + life * self.settings.life_display_padding, lifeY))
+                        surface.blit(self.life_display_image, rect)
+                # Draw the labels
                 for label in self.labels:
                         surface.blit(label.surface, label.rect)
+
+                # Draw the panels
                 for panel in self.panels:
                         # Show only if pause_only matches pause state
                         visible = (panel.pause_only and self.game.paused) or (not panel.pause_only and not self.game.paused)

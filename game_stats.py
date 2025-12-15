@@ -49,7 +49,7 @@ class GameStats:
         def reset_stats(self, game: 'AlienInvasion'):
                 """
                 """
-                self.hero_ships_left = game.settings.starting_lives
+                self.lives_left = game.settings.starting_lives
                 self.score = 0
                 self.wave = 1
 

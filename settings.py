@@ -109,6 +109,21 @@ class Settings:
                         self.screen_size[1] // 10
                 )
 
+                # Smaller than player ship
+                self.life_display_icon_size = (
+                        self.ship_size[0] - (self.ship_size[0] // 3),
+                        self.ship_size[1] - (self.ship_size[1] // 3)
+                )
+
+                # Padding between lives
+                self.life_display_padding = self.life_display_icon_size[0] + 6
+
+                # Corner to render the lives in
+                self.life_display_loc = (
+                        self.screen_size[0] // 150,
+                        self.screen_size[1] // 20
+                        )
+
                 # Lives Count
                 self.starting_lives = 3
 
@@ -159,7 +174,7 @@ class Settings:
                         self.horde_speed: int = self.screen_size[0] // 121
 
                         # Set horde size (columns, rows)
-                        self.horde_size: tuple[int, int] = (2, 14)
+                        self.horde_size: tuple[int, int] = (9, 14)
                 else:
 
                         # Set horde speed proportional to screen size

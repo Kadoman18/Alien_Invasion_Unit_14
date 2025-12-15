@@ -27,11 +27,11 @@ class AlienInvasion:
                 # Reference stats
                 self.stats = game_stats.GameStats(self)
 
-                # Reference HUD
-                self.hud = hud.HUD(self)
-
                 # Set the screen mode, scaling depending on screen size
                 self.screen = pygame.display.set_mode((self.settings.screen_size))
+
+                # Reference HUD
+                self.hud = hud.HUD(self)
 
                 # Define the screen rect for sprite placements
                 self.screen_rect: pygame.Rect = self.screen.get_rect(
@@ -195,6 +195,24 @@ class AlienInvasion:
                         # Set pause timer to None
                         self.pause_start_time = None
 
+
+        def on_descent_complete(self) -> None:
+                self.you_lose = False
+
+                self.stats.lives_left -= 1
+
+                if self.stats.lives_left > 0:
+                        self.ship_group.empty()
+                        self.ship = ship.Ship(self)
+                        self.ship_group.add(self.ship)
+
+                        self.horde.reset()
+
+                        self.paused = False
+                else:
+                        self.running = False
+
+
         def _update_screen(self) -> None:
                 """Updates the screen with relevant movements, sprites, and UI elements"""
 
@@ -220,23 +238,15 @@ class AlienInvasion:
         def run_game(self) -> None:
                 """Main game loop"""
 
-                while self.running == True:
-                        # Handle system and player events
+                while self.running:
                         self._event_listener()
 
-                        # Update ship sprite group
-                        self.ship_group.update()
+                        if not self.paused:
+                                self.ship_group.update()
+                                self.lasers.update()
+                                self.horde.update()
 
-                        # Update lasers sprite group
-                        self.lasers.update()
-
-                        # Update alien horde movement
-                        self.horde.update()
-
-                        # Draws all relevant surfaces, rects, sprites, to the screen.
                         self._update_screen()
-
-                        # Limit framerate to avoid running too fast
                         self.clock.tick(self.settings.fps)
 
 
