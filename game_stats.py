@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
     from Alien_Invasion import AlienInvasion
+    from Alien_Invasion import AlienInvasion.settings
     from pathlib import Path
 
 
@@ -18,7 +19,7 @@ class GameStats:
         """
 
         game: 'AlienInvasion'
-        settings: 'AlienInvasion.settings' = field(init=False)
+        settings: 'AlienInvasion.settings' = field(init=False) # <-works, but vsc thinks its wrong
         lives_left: int = field(init=False)
         score: int = field(init=False)
         wave: int = field(init=False, default=1)

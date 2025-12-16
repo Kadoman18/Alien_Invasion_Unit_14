@@ -20,7 +20,7 @@ class Settings:
         and dynamic values such as sprite scaling and FPS limits.
         """
 
-        DEBUGGING: bool = False
+        DEBUGGING: bool = True
 
         # General Settings
         name: str = '👾 Alien Invasion 👾'
@@ -67,7 +67,7 @@ class Settings:
         life_display_icon_size: Tuple[int, int] = field(init=False)
         life_display_padding: int = field(init=False)
         life_display_loc: Tuple[int, int] = field(init=False)
-        starting_lives: int = 3
+        starting_lives: int = 4
         ship_speed: int = field(init=False)
         ship_wrap_buffer: int = 25
         ship_base_firing_speed: int = field(init=False)
@@ -103,7 +103,7 @@ class Settings:
                 # UI Labels
                 self.hi_score_size = self.screen_size[1] // 25
                 self.hi_score_loc = (
-                        self.screen_size[0] - (self.screen_size[0] // 10),
+                        int(self.screen_size[0] * 0.875),
                         self.screen_size[1] // 50
                 )
 

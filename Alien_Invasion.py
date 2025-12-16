@@ -28,20 +28,16 @@ class Resources:
 class AlienInvasion:
         """Main game controller for the Alien Invasion application."""
 
-        # Initialize local variables
         def __init__(self) -> None:
-
-                # Initialize pygame
                 pygame.init()
 
-                # Reference settings
                 self.settings = settings.Settings()
-
-                # Reference stats
                 self.stats = game_stats.GameStats(self)
 
-                # Set the screen mode, scaling depending on screen size
                 self.screen = pygame.display.set_mode((self.settings.screen_size))
+
+                # Player input lock (disabled during horde spawn)
+                self.allow_player_input: bool = False
 
                 # Preload resources
                 self.resources = Resources(
@@ -53,54 +49,45 @@ class AlienInvasion:
                         ),
                         laser_sound=pygame.mixer.Sound(self.settings.laser_noise),
                         impact_sound=pygame.mixer.Sound(self.settings.impact_noise),
-                        background=pygame.transform.scale(pygame.image.load(self.settings.background).convert(), self.settings.screen_size),
+                        background=pygame.transform.scale(
+                                pygame.image.load(self.settings.background).convert(),
+                                self.settings.screen_size
+                        ),
                         icon=pygame.image.load(self.settings.icon)
                 )
 
-                # Reference HUD
                 self.hud = hud.HUD(self)
 
-                # Define the screen rect for sprite placements
-                self.screen_rect: pygame.Rect = self.screen.get_rect(
+                self.screen_rect = self.screen.get_rect(
                         midbottom=(
                                 self.settings.screen_size[0] // 2,
                                 self.settings.screen_size[1]
                         )
                 )
 
-                # Initialize pause timer
-                self.pause_duration = 0
-                self.pause_start_time = None
-
-                # Customize game window title and icon
                 pygame.display.set_caption(self.settings.name)
                 pygame.display.set_icon(self.resources.icon)
 
-                # Load and resize the sky image to fit the window and get its rect
-                self.sky_image: pygame.Surface = self.resources.background
-                self.sky_rect: pygame.Rect = self.sky_image.get_rect()
+                self.sky_image = self.resources.background
+                self.sky_rect = self.sky_image.get_rect()
 
-                # Create the player's ship sprite, sprite group, and add the sprite to it.
                 self.ship = ship.Ship(self, self.resources)
                 self.ship_group = pygame.sprite.GroupSingle()
                 self.ship_group.add(self.ship)
 
-                # Create the lasers sprite group
                 self.lasers = pygame.sprite.Group()
 
-                # Create the horde of aliens
+                # Create alien horde (starts in spawning state)
                 self.horde = alien_horde.AlienHorde(self, self.resources)
 
-                # Player hasnt lost.. yet..
                 self.you_lose: bool = False
-
-                # Game running boolean
                 self.running: bool = True
-
-                # Game paused boolean
                 self.paused: bool = True
 
-                # Game clock
+                # Pause timing
+                self.pause_start_time: int | None = None
+                self.pause_duration: int = 0
+
                 self.clock = pygame.time.Clock()
 
 
@@ -134,25 +121,22 @@ class AlienInvasion:
         def _key_down_event(self, event) -> None:
                 """Listens for key down events (Key Presses)"""
 
-                # Rightward movement
-                if event.key == pygame.K_d and not self.you_lose:
-                        self.ship.state.moving_right = True
-                elif event.key == pygame.K_RIGHT and not self.you_lose:
+                # Ignore gameplay input during spawn or pause
+                if not self.allow_player_input or self.paused:
+                        return
+
+                if event.key in (pygame.K_d, pygame.K_RIGHT) and not self.you_lose:
                         self.ship.state.moving_right = True
 
-                # Leftward movement
-                elif event.key == pygame.K_a and not self.you_lose:
-                        self.ship.state.moving_left = True
-                elif event.key == pygame.K_LEFT and not self.you_lose:
+                elif event.key in (pygame.K_a, pygame.K_LEFT) and not self.you_lose:
                         self.ship.state.moving_left = True
 
-                # Firing (base and rapid)
                 elif event.key == pygame.K_SPACE:
                         self.ship.state.firing = True
+
                 elif event.key == pygame.K_LSHIFT:
                         self.ship.state.firing_rapid = True
 
-                # Quit game with Escape
                 elif event.key == pygame.K_ESCAPE:
                         self.running = False
                         pygame.quit()
@@ -162,27 +146,26 @@ class AlienInvasion:
         def _key_up_event(self, event) -> None:
                 """Listens for key up events (Key Releases)"""
 
-                # Pause button
+                # Pause always allowed
                 if event.key == pygame.K_p:
                         self._toggle_pause()
+                        return
 
-                # Rightward movement stop
-                elif event.key == pygame.K_d or self.you_lose:
-                        self.ship.state.moving_right = False
-                elif event.key == pygame.K_LEFT or self.you_lose:
-                        self.ship.state.moving_left = False
+                if not self.allow_player_input:
+                        return
 
-                # Leftward movement stop
-                elif event.key == pygame.K_a or self.you_lose:
-                        self.ship.state.moving_left = False
-                elif event.key == pygame.K_RIGHT or self.you_lose:
+                if event.key in (pygame.K_d, pygame.K_RIGHT):
                         self.ship.state.moving_right = False
 
-                # Firing stop
+                elif event.key in (pygame.K_a, pygame.K_LEFT):
+                        self.ship.state.moving_left = False
+
                 elif event.key == pygame.K_SPACE:
                         self.ship.state.firing = False
+
                 elif event.key == pygame.K_LSHIFT:
                         self.ship.state.firing_rapid = False
+
 
 
         def _toggle_pause(self) -> None:
@@ -219,9 +202,18 @@ class AlienInvasion:
                         self.pause_start_time = None
 
 
+        def on_horde_spawn_complete(self) -> None:
+                """
+                Called by AlienHorde when spawn descent finishes.
+                Enables player input and begins active gameplay.
+                """
+                pygame.time.delay(500)
+                self.allow_player_input = True
+
+
+
         def on_descent_complete(self) -> None:
                 self.you_lose = False
-
                 self.stats.lives_left -= 1
 
                 if self.stats.lives_left > 0:
@@ -229,11 +221,12 @@ class AlienInvasion:
                         self.ship = ship.Ship(self, self.resources)
                         self.ship_group.add(self.ship)
 
+                        self.allow_player_input = False
                         self.horde.reset()
-
                         self.paused = False
                 else:
                         self.running = False
+
 
 
         def _update_screen(self) -> None:

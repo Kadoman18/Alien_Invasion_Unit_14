@@ -175,7 +175,7 @@ class HUD:
 
                 # Draw lives
                 lifeX, lifeY = self.settings.life_display_loc
-                for life in range(self.stats.lives_left):
+                for life in range(0, self.stats.lives_left - 1):
                         rect = self.life_display_image.get_rect(
                                 topleft=(lifeX + life * self.settings.life_display_padding, lifeY)
                         )
