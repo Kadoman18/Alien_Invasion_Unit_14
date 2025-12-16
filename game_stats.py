@@ -1,32 +1,42 @@
 """
+Manages game statistics for Alien Invasion.
 """
-
 import pygame
 import json
 from typing import TYPE_CHECKING
+from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
     from Alien_Invasion import AlienInvasion
+    from pathlib import Path
 
 
+@dataclass
 class GameStats:
         """
+        Stores statistics for the current game session, including score, wave, and lives.
         """
-        def __init__(self, game: 'AlienInvasion'):
-                """
-                """
-                self.game = game
-                self.settings = game.settings
-                self.max_score: int = 0
+
+        game: 'AlienInvasion'
+        settings: 'AlienInvasion.settings' = field(init=False)
+        lives_left: int = field(init=False)
+        score: int = field(init=False)
+        wave: int = field(init=False, default=1)
+        hi_score: int = field(init=False, default=0)
+        path: 'Path' = field(init=False)
+
+        def __post_init__(self):
+                self.settings = self.game.settings
+                self.path = self.settings.score_file
                 self.init_saved_scores()
-                self.reset_stats(game)
-                self.wave: int = 1
+                self.reset_stats()
+                self.wave = 1
 
 
         def init_saved_scores(self) -> None:
                 """
+                Load the high score from disk, or initialize to 0.
                 """
-                self.path = self.settings.score_file
                 if self.path.exists() and self.path.stat().st_size > 0:
                     contents = self.path.read_text()
                     scores = json.loads(contents)
@@ -38,6 +48,7 @@ class GameStats:
 
         def save_scores(self) -> None:
                 """
+                Save the current high score to disk.
                 """
                 scores = {'hi_score': self.hi_score}
                 contents = json.dumps(scores, indent=4)
@@ -47,16 +58,18 @@ class GameStats:
                     print("File not found!:", e)
 
 
-        def reset_stats(self, game: 'AlienInvasion') -> None:
+        def reset_stats(self) -> None:
                 """
+                Reset stats for a new game or life loss.
                 """
-                self.lives_left = game.settings.starting_lives
+                self.lives_left = self.settings.starting_lives
                 self.score = 0
                 self.wave = 1
 
 
         def update(self, collisions: dict[pygame.sprite.Sprite, list[pygame.sprite.Sprite]]) -> None:
                 """
+                Update the current score and high score after collisions.
                 """
                 self._update_score(collisions)
                 self._update_hi_score()
@@ -64,6 +77,7 @@ class GameStats:
 
         def _update_hi_score(self) -> None:
                 """
+                Update the high score if current score exceeds it.
                 """
                 if self.score > self.hi_score:
                     self.hi_score = self.score
@@ -72,6 +86,7 @@ class GameStats:
 
         def _update_score(self, collisions: dict) -> None:
                 """
+                Add alien value to score for each collision.
                 """
                 for alien in collisions.values():
                     self.score += self.settings.alien_value
@@ -79,5 +94,6 @@ class GameStats:
 
         def update_wave(self) -> None:
                 """
+                Increment the wave counter.
                 """
                 self.wave += 1

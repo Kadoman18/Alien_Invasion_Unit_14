@@ -10,6 +10,19 @@ import hud
 import ship
 import pygame
 import settings
+from dataclasses import dataclass
+
+
+@dataclass
+class Resources:
+        """Dataclass to cache preloaded images and sounds for smoother gameplay"""
+        ship_image: pygame.Surface
+        laser_image: pygame.Surface
+        alien_image: pygame.Surface
+        laser_sound: pygame.mixer.Sound
+        impact_sound: pygame.mixer.Sound
+        background: pygame.Surface
+        icon: pygame.Surface
 
 
 class AlienInvasion:
@@ -30,6 +43,20 @@ class AlienInvasion:
                 # Set the screen mode, scaling depending on screen size
                 self.screen = pygame.display.set_mode((self.settings.screen_size))
 
+                # Preload resources
+                self.resources = Resources(
+                        ship_image=pygame.image.load(self.settings.ship_image).convert_alpha(),
+                        laser_image=pygame.image.load(self.settings.laser_graphic).convert_alpha(),
+                        alien_image=pygame.transform.scale(
+                                pygame.image.load(self.settings.alien_image).convert_alpha(),
+                                self.settings.alien_size
+                        ),
+                        laser_sound=pygame.mixer.Sound(self.settings.laser_noise),
+                        impact_sound=pygame.mixer.Sound(self.settings.impact_noise),
+                        background=pygame.transform.scale(pygame.image.load(self.settings.background).convert(), self.settings.screen_size),
+                        icon=pygame.image.load(self.settings.icon)
+                )
+
                 # Reference HUD
                 self.hud = hud.HUD(self)
 
@@ -47,26 +74,22 @@ class AlienInvasion:
 
                 # Customize game window title and icon
                 pygame.display.set_caption(self.settings.name)
-                pygame.display.set_icon(pygame.image.load(self.settings.icon))
+                pygame.display.set_icon(self.resources.icon)
 
                 # Load and resize the sky image to fit the window and get its rect
-                self.sky_image: pygame.Surface = pygame.transform.scale(
-                        pygame.image.load(self.settings.background).convert(),
-                        self.settings.screen_size
-                )
+                self.sky_image: pygame.Surface = self.resources.background
                 self.sky_rect: pygame.Rect = self.sky_image.get_rect()
 
                 # Create the player's ship sprite, sprite group, and add the sprite to it.
-                self.ship = ship.Ship(self)
+                self.ship = ship.Ship(self, self.resources)
                 self.ship_group = pygame.sprite.GroupSingle()
                 self.ship_group.add(self.ship)
 
                 # Create the lasers sprite group
                 self.lasers = pygame.sprite.Group()
-                self.lasers_noise = pygame.mixer.Sound(self.settings.laser_noise)
 
                 # Create the horde of aliens
-                self.horde = alien_horde.AlienHorde(self)
+                self.horde = alien_horde.AlienHorde(self, self.resources)
 
                 # Player hasnt lost.. yet..
                 self.you_lose: bool = False
@@ -113,21 +136,21 @@ class AlienInvasion:
 
                 # Rightward movement
                 if event.key == pygame.K_d and not self.you_lose:
-                        self.ship.moving_right = True
+                        self.ship.state.moving_right = True
                 elif event.key == pygame.K_RIGHT and not self.you_lose:
-                        self.ship.moving_right = True
+                        self.ship.state.moving_right = True
 
                 # Leftward movement
                 elif event.key == pygame.K_a and not self.you_lose:
-                        self.ship.moving_left = True
+                        self.ship.state.moving_left = True
                 elif event.key == pygame.K_LEFT and not self.you_lose:
-                        self.ship.moving_left = True
+                        self.ship.state.moving_left = True
 
                 # Firing (base and rapid)
                 elif event.key == pygame.K_SPACE:
-                        self.ship.firing = True
+                        self.ship.state.firing = True
                 elif event.key == pygame.K_LSHIFT:
-                        self.ship.firing_rapid = True
+                        self.ship.state.firing_rapid = True
 
                 # Quit game with Escape
                 elif event.key == pygame.K_ESCAPE:
@@ -145,21 +168,21 @@ class AlienInvasion:
 
                 # Rightward movement stop
                 elif event.key == pygame.K_d or self.you_lose:
-                        self.ship.moving_right = False
+                        self.ship.state.moving_right = False
                 elif event.key == pygame.K_LEFT or self.you_lose:
-                        self.ship.moving_left = False
+                        self.ship.state.moving_left = False
 
                 # Leftward movement stop
                 elif event.key == pygame.K_a or self.you_lose:
-                        self.ship.moving_left = False
+                        self.ship.state.moving_left = False
                 elif event.key == pygame.K_RIGHT or self.you_lose:
-                        self.ship.moving_right = False
+                        self.ship.state.moving_right = False
 
                 # Firing stop
                 elif event.key == pygame.K_SPACE:
-                        self.ship.firing = False
+                        self.ship.state.firing = False
                 elif event.key == pygame.K_LSHIFT:
-                        self.ship.firing_rapid = False
+                        self.ship.state.firing_rapid = False
 
 
         def _toggle_pause(self) -> None:
@@ -203,7 +226,7 @@ class AlienInvasion:
 
                 if self.stats.lives_left > 0:
                         self.ship_group.empty()
-                        self.ship = ship.Ship(self)
+                        self.ship = ship.Ship(self, self.resources)
                         self.ship_group.add(self.ship)
 
                         self.horde.reset()

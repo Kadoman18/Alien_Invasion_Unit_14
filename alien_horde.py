@@ -8,6 +8,7 @@ of the alien sprite group.
 import pygame
 from alien import Aliens
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 
 # Forward reference to avoid circular imports at runtime
@@ -15,32 +16,34 @@ if TYPE_CHECKING:
         from Alien_Invasion import AlienInvasion
 
 
+@dataclass
+class HordeState:
+        """Holds the advancing/descent state for the alien horde."""
+        advancing: bool = False
+        advance_remaining: int = 0
+        descent_stage: bool = False
+
+
 class AlienHorde:
         """Houses the alien horde building mechanics."""
 
         # Initialize local variables
-        def __init__(self, game: 'AlienInvasion') -> None:
+        def __init__(self, game: 'AlienInvasion', resources=None) -> None:
 
                 # Import game reference and settings
                 self.game = game
                 self.settings = game.settings
                 self.stats = game.stats
+                self.resources = resources
 
                 # Initialize horde group
                 self.group = pygame.sprite.Group()
 
-                # State for when horde is advancing downward (edge-triggered)
-                self.advancing: bool = False
-
-                # Remaining advance distance for edge-triggered advance
-                self._advance_remaining: int = 0
-
-                # When aliens reach the bottom or kill the player
-                self.descent_stage: bool = False
+                # Horde state
+                self.state = HordeState()
 
                 # Create the horde
                 self._create_horde()
-
 
         def _create_horde(self) -> None:
                 """Build a grid of aliens using rows and columns from settings."""
@@ -48,45 +51,47 @@ class AlienHorde:
                 # Spacing between aliens
                 padding: int = self.settings.horde_padding
 
-                # Extract alien measurments from settings
+                # Extract alien measurements from settings
                 alien_size: tuple[int, int] = self.settings.alien_size
 
                 # Build the horde to set specifications
                 for row in range(self.settings.horde_size[0]):
                         for col in range(self.settings.horde_size[1]):
-                                alien = Aliens(self.game, alien_size[0], alien_size[1])
+                                # Use preloaded image if resources provided
+                                if self.resources:
+                                        alien = Aliens(self.game, alien_size[0], alien_size[1], resources=self.resources)
+                                else:
+                                        alien = Aliens(self.game, alien_size[0], alien_size[1])
 
-                                # Define the current aliens rect
+                                # Define the current alien's rect
                                 alien.rect.center = (
-                                        alien_size[0] + padding + (col * (alien_size[1] + padding)),
-                                        alien_size[0] + padding + (row * (alien_size[1] + padding))
+                                        alien_size[0] + padding + (col * (alien_size[0] + padding)),
+                                        alien_size[1] + padding + (row * (alien_size[1] + padding))
                                         )
 
                                 # Add the current alien to horde sprite group
                                 self.group.add(alien)
-
 
         def _check_collisions(self) -> None:
                 """
                 Handles collision detection for the edges of the screen, the player ship rect,
                 and the laser rects.
                 """
-
                 screen_rect = self.game.screen.get_rect()
 
                 # Only one pass through the aliens
                 for alien in self.group.sprites():
 
                         # Check if any alien hits the bottom or collides with the player
-                        if not self.descent_stage and (alien.rect.bottom >= screen_rect.bottom):
-                                self.descent_stage = True
+                        if not self.state.descent_stage and (alien.rect.bottom >= screen_rect.bottom):
+                                self.state.descent_stage = True
                                 self.game.you_lose = True
                                 break  # final descent takes priority
 
                         # Check if the horde hits screen edges (only if not advancing or descending)
-                        if not self.advancing and not self.descent_stage and alien.check_edges():
-                                self.advancing = True
-                                self._advance_remaining = self.settings.horde_advance
+                        if not self.state.advancing and not self.state.descent_stage and alien.check_edges():
+                                self.state.advancing = True
+                                self.state.advance_remaining = self.settings.horde_advance
                                 break
 
                 # Delete self and laser when alien in horde is shot
@@ -97,7 +102,7 @@ class AlienHorde:
                         True
                         )
 
-                # Play destruct sound effect (it seemed long so I shortened it)
+                # Play destruct sound effect (shortened for performance)
                 for collision in laser_collisions:
                         pygame.mixer.Sound(self.settings.impact_noise).play(0, 325, 0)
 
@@ -112,18 +117,16 @@ class AlienHorde:
                         False
                         )
 
-                if ship_collisions and not self.descent_stage:
+                if ship_collisions and not self.state.descent_stage:
                         self.game.ship_group.empty()
                         pygame.mixer.Sound.play(pygame.mixer.Sound(self.settings.impact_noise))
-                        self.descent_stage = True
+                        self.state.descent_stage = True
                         self.game.you_lose = True
 
-                # All aliens are dead, what now?
+                # All aliens are dead, advance wave
                 if not self.group and not self.game.you_lose:
                         self.stats.update_wave()
                         self.reset()
-
-
 
         def _advance_and_reverse(self) -> None:
                 """
@@ -136,7 +139,6 @@ class AlienHorde:
                         alien.rect.y += self.settings.horde_advance
                 self.settings.horde_direction *= -1
 
-
         def update(self) -> None:
                 """
                 Update positions for each alien and handle edge collision logic.
@@ -146,27 +148,22 @@ class AlienHorde:
                 self._check_collisions()
 
                 # If collision is an edge, advancing sets to true
-                if self.advancing:
+                if self.state.advancing:
 
-                        # How much to move this frame (this is an if-less if statement, it returns the smaller amount)
-                        step = (
-                                (self._advance_remaining * (self._advance_remaining < self.settings.horde_speed))
-                                +
-                                (self.settings.horde_speed * (self.settings.horde_speed <= self._advance_remaining))
-                                )
+                        step = min(self.state.advance_remaining, self.settings.horde_speed)
                         if step > 0:
                                 for alien in self.group.sprites():
                                         alien.rect.y += step
-                                self._advance_remaining -= step
+                                self.state.advance_remaining -= step
 
                         # If done advancing, reverse direction and clear state
-                        if self._advance_remaining <= 0:
-                                self.advancing = False
-                                self._advance_remaining = 0
+                        if self.state.advance_remaining <= 0:
+                                self.state.advancing = False
+                                self.state.advance_remaining = 0
                                 self.settings.horde_direction *= -1
 
                 # If in final descent, move all aliens straight down
-                if self.descent_stage:
+                if self.state.descent_stage:
                         for alien in self.group.sprites():
                                 alien.rect.y += self.settings.horde_speed
                                 if alien.rect.top > self.game.screen_rect.bottom:
@@ -174,20 +171,16 @@ class AlienHorde:
 
                         if not self.group:
                                 self.game.on_descent_complete()
-
                         return
 
                 # Normal horizontal movement when not advancing/final
-                if not self.advancing:
+                if not self.state.advancing:
                         self.group.update()
 
         def reset(self) -> None:
                 """
                 Resets the horde for level advancing and life loss
                 """
-
                 self.group.empty()
-                self.advancing = False
-                self.descent_stage = False
-                self._advance_remaining = 0
+                self.state = HordeState()
                 self._create_horde()
