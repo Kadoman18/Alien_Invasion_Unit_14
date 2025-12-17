@@ -60,9 +60,13 @@ class AlienHorde:
                 self.state.spawning = True
                 self.state.spawn_remaining = total_height + alien_size[1] + padding
 
-
                 for row in range(self.settings.horde_size[0]):
                         for col in range(self.settings.horde_size[1]):
+
+                                # Checkerboard pattern: skip every other cell
+                                if (row + col) % 2 != 0:
+                                        continue
+
                                 alien = (
                                         Aliens(self.game, alien_size[0], alien_size[1], self.resources)
                                         if self.resources
@@ -71,11 +75,11 @@ class AlienHorde:
 
                                 alien.rect.center = (
                                         alien_size[0] + padding + (col * (alien_size[0] + padding)),
-                                        # start above screen
                                         -total_height + (row * (alien_size[1] + padding))
                                 )
 
                                 self.group.add(alien)
+
 
         def _check_collisions(self) -> None:
                 """

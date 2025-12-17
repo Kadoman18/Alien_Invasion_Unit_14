@@ -7,10 +7,20 @@ Includes the core game window initialization, event handling, and game state man
 import alien_horde
 import game_stats
 import hud
+import lose_screen
 import ship
 import pygame
 import settings
 from dataclasses import dataclass
+from enum import Enum, auto
+
+
+class GameState(Enum):
+        SPAWNING = auto()
+        PLAYING = auto()
+        DESCENT = auto()
+        LOSE_DELAY = auto()
+        LOSE_SCREEN = auto()
 
 
 @dataclass
@@ -88,6 +98,16 @@ class AlienInvasion:
                 self.pause_start_time: int | None = None
                 self.pause_duration: int = 0
 
+                # Set initial state
+                self.state: GameState = GameState.SPAWNING
+
+                # Lose screen
+                self.lose_screen = lose_screen.LoseScreen(self)
+
+                # Lose screen timing
+                self.lose_time_start: int | None = None
+                self.lose_delay_ms: int = 1000
+
                 self.clock = pygame.time.Clock()
 
 
@@ -104,10 +124,15 @@ class AlienInvasion:
                                 exit()
 
                         # Mouse left click event
-                        elif event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
-                                        if (self.hud.play_button.rect.collidepoint(pygame.mouse.get_pos())
-                                             or self.hud.pause_button.rect.collidepoint(pygame.mouse.get_pos())):
-                                                self._toggle_pause()
+                        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                                if self.state == GameState.LOSE_SCREEN:
+                                        self.lose_screen.handle_click(event.pos)
+                                        return
+
+                                if (self.hud.play_button.rect.collidepoint(event.pos)
+                                or self.hud.pause_button.rect.collidepoint(event.pos)):
+                                        self._toggle_pause()
 
                         # Keydown event
                         elif event.type == pygame.KEYDOWN:
@@ -209,6 +234,7 @@ class AlienInvasion:
                 """
                 pygame.time.delay(500)
                 self.allow_player_input = True
+                self.state = GameState.PLAYING
 
 
 
@@ -225,42 +251,60 @@ class AlienInvasion:
                         self.horde.reset()
                         self.paused = False
                 else:
-                        self.running = False
+                        self.you_lose = True
+                        self.state = GameState.LOSE_DELAY
+                        self.lose_time_start = pygame.time.get_ticks()
 
 
 
         def _update_screen(self) -> None:
                 """Updates the screen with relevant movements, sprites, and UI elements"""
+                if self.state == GameState.LOSE_SCREEN:
+                        self.lose_screen.draw()
+                        pygame.display.flip()
+                        return
 
-                # Draw background
                 self.screen.blit(self.sky_image, (0, 0))
-
-                # Draw ship sprite
                 self.ship_group.draw(self.screen)
-
-                # Draw lasers sprite group
                 self.lasers.draw(self.screen)
-
-                # Draw alien horde
                 self.horde.group.draw(self.screen)
-
-                # Draw HUD
                 self.hud.draw(self.screen)
 
-                # Update the display (swap buffers)
                 pygame.display.flip()
 
 
-        def run_game(self) -> None:
-                """Main game loop"""
+        def restart_game(self) -> None:
+                self.stats.reset_stats()
+                self.lasers.empty()
+                self.ship_group.empty()
 
+                self.ship = ship.Ship(self, self.resources)
+                self.ship_group.add(self.ship)
+
+                self.allow_player_input = False
+                self.you_lose = False
+                self.paused = False
+                self.state = GameState.SPAWNING
+
+                self.horde.reset()
+
+
+
+        def run_game(self) -> None:
                 while self.running:
                         self._event_listener()
 
-                        if not self.paused:
-                                self.ship_group.update()
-                                self.lasers.update()
+                        if self.state == GameState.LOSE_DELAY:
+                                now = pygame.time.get_ticks()
+                                if self.lose_time_start != None and now - self.lose_time_start >= self.lose_delay_ms:
+                                        self.state = GameState.LOSE_SCREEN
+
+                        elif not self.paused and self.state != GameState.LOSE_SCREEN:
                                 self.horde.update()
+
+                                if self.state == GameState.PLAYING:
+                                        self.ship_group.update()
+                                        self.lasers.update()
 
                         self._update_screen()
                         self.clock.tick(self.settings.fps)

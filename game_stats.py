@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
     from Alien_Invasion import AlienInvasion
-    from Alien_Invasion import AlienInvasion.settings
     from pathlib import Path
 
 

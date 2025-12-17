@@ -122,7 +122,7 @@ class HUD:
                                 center=self.settings.play_button_loc,
                                 text_size=self.settings.play_button_font_size,
                                 text_color="white",
-                                fill_color="green",
+                                fill_color="purple",
                                 border_color="gray",
                                 pause_only=True
                         ),
@@ -136,7 +136,7 @@ class HUD:
                                 center=self.settings.pause_button_loc,
                                 text_size=self.settings.pause_button_font_size,
                                 text_color="white",
-                                fill_color="green",
+                                fill_color="purple",
                                 border_color="gray",
                                 pause_only=False
                         ),
